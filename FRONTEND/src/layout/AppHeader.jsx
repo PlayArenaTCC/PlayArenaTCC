@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { LogOut, Menu, User } from 'lucide-react'
+import { LogOut, Menu, Moon, Sun, User } from 'lucide-react'
 import { Logo } from '../components/Logo'
 
-export function AppHeader({ activeView, navItems, session, onNavigate, onLogout }) {
+export function AppHeader({ activeView, darkTheme, navItems, session, onNavigate, onLogout, onToggleTheme }) {
   const [open, setOpen] = useState(false)
 
   function navigate(view) {
@@ -29,6 +29,15 @@ export function AppHeader({ activeView, navItems, session, onNavigate, onLogout 
           </button>
         ))}
       </nav>
+      <button
+        className="icon-button theme-toggle"
+        type="button"
+        onClick={onToggleTheme}
+        aria-label={darkTheme ? 'Ativar tema claro' : 'Ativar tema escuro'}
+        title={darkTheme ? 'Tema claro' : 'Tema escuro'}
+      >
+        {darkTheme ? <Sun size={17} /> : <Moon size={17} />}
+      </button>
       <div className="account-pill">
         <span className="avatar-dot">
           <User size={16} />

@@ -1,4 +1,4 @@
-import { DollarSign, MapPin, Star } from 'lucide-react'
+import { DollarSign, MapPin } from 'lucide-react'
 import { fallbackCourtImage, sportLabels } from '../../data/demoData'
 import { formatPlainCurrency } from '../../utils/formatters'
 
@@ -9,12 +9,6 @@ export function CourtCard({ quadra, onOpen, featured = false }) {
         <img src={quadra.imagem_url} alt={quadra.nome} onError={(event) => { event.currentTarget.src = fallbackCourtImage }} />
         <div className="media-shade" />
         <span className={`sport-badge sport-${quadra.modalidade}`}>{sportLabels[quadra.modalidade] || quadra.modalidade}</span>
-        {quadra.rating > 0 && (
-          <span className="rating-badge">
-            <Star size={14} />
-            {quadra.rating.toFixed(1)}
-          </span>
-        )}
         {featured && <span className="featured-badge">Destaque</span>}
       </div>
       <div className="court-card-body">
@@ -39,9 +33,6 @@ export function CourtCard({ quadra, onOpen, featured = false }) {
             {formatPlainCurrency(quadra.preco_hora)}
             <small>/hora</small>
           </strong>
-          {quadra.total_reviews > 0 && (
-            <span>{quadra.total_reviews} {quadra.total_reviews === 1 ? 'avaliação' : 'avaliações'}</span>
-          )}
         </div>
       </div>
     </article>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import './App.css'
 import { Toast } from './components/Toast'
 import { AdminPortal } from './features/admin/AdminPortal'
@@ -11,6 +12,11 @@ import { AppHeader } from './layout/AppHeader'
 
 function App() {
   const playArena = usePlayArenaApp()
+  const [darkTheme, setDarkTheme] = useState(() => localStorage.getItem('playarena-theme') === 'dark')
+
+  useEffect(() => {
+    localStorage.setItem('playarena-theme', darkTheme ? 'dark' : 'light')
+  }, [darkTheme])
 
   if (!playArena.session) {
     return (
@@ -22,13 +28,15 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={darkTheme ? 'app-shell dark-theme' : 'app-shell'}>
       <AppHeader
         activeView={playArena.activeView}
+        darkTheme={darkTheme}
         navItems={playArena.navItems}
         session={playArena.session}
         onNavigate={playArena.setActiveView}
         onLogout={playArena.handleLogout}
+        onToggleTheme={() => setDarkTheme((current) => !current)}
       />
 
       <div className="workspace">

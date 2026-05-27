@@ -1,14 +1,28 @@
-import { useState } from 'react'
-import { ArrowRight, Search, Sparkles } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { ArrowRight, Search } from 'lucide-react'
 import { Logo } from '../../components/Logo'
+import { sportLabels } from '../../data/demoData'
 import { CourtCard } from './CourtCard'
 
 export function HomeView({ quadras, onSearch, onOpenCourt }) {
   const [query, setQuery] = useState('')
+  const quickSearches = useMemo(() => {
+    return Array.from(new Set(quadras.map((quadra) => quadra.modalidade).filter(Boolean)))
+      .slice(0, 4)
+      .map((modalidade) => ({
+        label: sportLabels[modalidade] || modalidade,
+        value: modalidade,
+      }))
+  }, [quadras])
 
   function submit(event) {
     event.preventDefault()
     onSearch(query)
+  }
+
+  function applyQuickSearch(value) {
+    setQuery(value)
+    onSearch(value)
   }
 
   return (
@@ -18,10 +32,6 @@ export function HomeView({ quadras, onSearch, onOpenCourt }) {
         <div className="home-hero-content">
           <div className="hero-logo">
             <Logo />
-          </div>
-          <div className="hero-badge">
-            <Sparkles size={16} />
-            <span>Mais de 500 quadras disponíveis</span>
           </div>
           <h1>
             Encontre o campo perfeito
@@ -34,20 +44,29 @@ export function HomeView({ quadras, onSearch, onOpenCourt }) {
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cidade ou região..." />
             <button type="submit">Buscar</button>
           </form>
-          <div className="hero-numbers">
-            <div><strong>500+</strong><span>Quadras</span></div>
-            <div><strong>10K+</strong><span>Reservas</span></div>
-            <div><strong>4.8</strong><span>Avaliação</span></div>
-          </div>
+          {quickSearches.length > 0 && (
+            <div className="hero-quick-searches">
+              <span>Buscas rápidas</span>
+              <div className="hero-chip-row">
+                {quickSearches.map((item) => (
+                  <button key={item.value} className="hero-chip" type="button" onClick={() => applyQuickSearch(item.value)}>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        <div className="hero-wave" />
+        <svg className="hero-wave" viewBox="0 0 1440 140" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 42C150 68 265 86 415 88C592 91 690 68 852 70C1048 72 1147 101 1440 112V140H0V42Z" />
+        </svg>
       </section>
 
       <section className="section-block">
         <div className="section-title">
           <div>
             <h2>Mais Populares</h2>
-            <p>Os espaços mais bem avaliados</p>
+            <p>Espaços em destaque para jogar hoje</p>
           </div>
           <button className="soft-action" type="button" onClick={() => onSearch('')}>
             Ver todos

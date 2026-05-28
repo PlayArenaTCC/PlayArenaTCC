@@ -6,7 +6,6 @@ import { CourtCard } from './CourtCard'
 export function SearchView({ initialQuery, quadras, onOpenCourt }) {
   const [query, setQuery] = useState(initialQuery)
   const [modalidade, setModalidade] = useState('todos')
-  const [cidade, setCidade] = useState('')
   const [precoMax, setPrecoMax] = useState(500)
 
   const modalidades = useMemo(() => {
@@ -18,17 +17,15 @@ export function SearchView({ initialQuery, quadras, onOpenCourt }) {
     const haystack = `${quadra.nome} ${quadra.endereco} ${quadra.bairro} ${quadra.cidade} ${quadra.modalidade}`.toLowerCase()
     const matchQuery = !query || haystack.includes(query.toLowerCase())
     const matchMode = modalidade === 'todos' || quadra.modalidade === modalidade
-    const matchCity = !cidade || quadra.cidade?.toLowerCase().includes(cidade.toLowerCase())
     const matchPrice = Number(quadra.preco_hora || 0) <= Number(precoMax)
-    return matchQuery && matchMode && matchCity && matchPrice
+    return matchQuery && matchMode && matchPrice
   })
 
-  const activeFilters = (modalidade !== 'todos' ? 1 : 0) + (cidade ? 1 : 0) + (precoMax < 500 ? 1 : 0)
+  const activeFilters = (modalidade !== 'todos' ? 1 : 0) + (precoMax < 500 ? 1 : 0)
 
   function clearFilters() {
     setQuery('')
     setModalidade('todos')
-    setCidade('')
     setPrecoMax(500)
   }
 
@@ -42,10 +39,6 @@ export function SearchView({ initialQuery, quadras, onOpenCourt }) {
             <Search size={18} />
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nome ou localização..." />
           </div>
-        </label>
-        <label className="field">
-          <span>Cidade</span>
-          <input value={cidade} onChange={(event) => setCidade(event.target.value)} placeholder="Digite a cidade..." />
         </label>
         <label className="field">
           <span>Tipo de Esporte</span>

@@ -37,7 +37,7 @@ async function updateUserStatus(id, status) {
   const usuario = await Usuario.findByPk(id);
 
   if (!usuario) {
-    throw new HttpError(404, 'Usuario nao encontrado.');
+    throw new HttpError(404, 'Usuário não encontrado.');
   }
 
   usuario.status = status === 'inativo' ? 'inativo' : 'ativo';
@@ -57,7 +57,7 @@ async function updateOwnerApproval(id, statusAprovacao) {
   const statusPermitidos = ['pendente', 'aprovado', 'reprovado'];
 
   if (!proprietario) {
-    throw new HttpError(404, 'Proprietario nao encontrado.');
+    throw new HttpError(404, 'Proprietário não encontrado.');
   }
 
   if (!statusPermitidos.includes(statusAprovacao)) {

@@ -7,7 +7,7 @@ export function CourtForm({ onSubmit, loading }) {
     modalidade: 'futsal',
     endereco: '',
     bairro: '',
-    cidade: 'Campo Mourao',
+    cidade: 'Campo Mourão',
     preco_hora: '90',
     imagem_url: '',
     descricao: '',
@@ -39,8 +39,8 @@ export function CourtForm({ onSubmit, loading }) {
         </select>
       </label>
       <label className="field">
-        <span>Endereco</span>
-        <input value={form.endereco} onChange={(event) => update('endereco', event.target.value)} placeholder="Rua e numero" />
+        <span>Endereço</span>
+        <input value={form.endereco} onChange={(event) => update('endereco', event.target.value)} placeholder="Rua e número" />
       </label>
       <label className="field">
         <span>Bairro</span>
@@ -59,8 +59,8 @@ export function CourtForm({ onSubmit, loading }) {
         <input value={form.imagem_url} onChange={(event) => update('imagem_url', event.target.value)} placeholder="https://..." />
       </label>
       <label className="field wide-field">
-        <span>Descricao</span>
-        <textarea value={form.descricao} onChange={(event) => update('descricao', event.target.value)} placeholder="Caracteristicas do espaco" />
+        <span>Descrição</span>
+        <textarea value={form.descricao} onChange={(event) => update('descricao', event.target.value)} placeholder="Características do espaço" />
       </label>
       <button className="primary-action wide-field" type="submit" disabled={loading}>
         <Plus size={17} />

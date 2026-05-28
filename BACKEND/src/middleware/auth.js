@@ -53,7 +53,7 @@ async function authenticate(request, response, next) {
     const [, token] = header.split(' ');
 
     if (!token) {
-      return response.status(401).json({ message: 'Token nao informado.' });
+      return response.status(401).json({ message: 'Token não informado.' });
     }
 
     const payload = jwt.verify(token, getJwtSecret());
@@ -84,7 +84,7 @@ async function authenticate(request, response, next) {
 function requireRoles(...roles) {
   return (request, response, next) => {
     if (!request.auth || !roles.includes(request.auth.perfil)) {
-      return response.status(403).json({ message: 'Acesso nao permitido para este perfil.' });
+      return response.status(403).json({ message: 'Acesso não permitido para este perfil.' });
     }
 
     return next();

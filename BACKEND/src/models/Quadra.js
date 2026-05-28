@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     cidade: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      defaultValue: 'Campo Mourao',
+      defaultValue: 'Campo Mourão',
     },
     estado: {
       type: DataTypes.STRING(2),

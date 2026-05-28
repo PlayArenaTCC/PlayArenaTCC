@@ -29,7 +29,7 @@ export function OwnerCourtCard({ quadra, onCreateSchedule }) {
         <div className="court-card-footer">
           <strong>{formatCurrency(quadra.preco_hora)}<small>/h</small></strong>
           <button className="secondary-action" type="button" onClick={() => setOpen((value) => !value)}>
-            Horarios
+            Horários
           </button>
         </div>
         {open && (

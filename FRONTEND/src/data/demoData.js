@@ -1,28 +1,28 @@
 export const demoQuadras = [
   {
     id: 'demo-quadra-integrado',
-    nome: 'Quadra Colegio Integrado',
-    descricao: 'Quadra coberta com piso esportivo, iluminacao noturna e arquibancada lateral.',
+    nome: 'Quadra Colégio Integrado',
+    descricao: 'Quadra coberta com piso esportivo, iluminação noturna e arquibancada lateral.',
     modalidade: 'futsal',
     endereco: 'Rua das Palmeiras, 1200',
     bairro: 'Centro',
-    cidade: 'Campo Mourao',
+    cidade: 'Campo Mourão',
     estado: 'PR',
     preco_hora: 90,
     imagem_url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=900&q=80',
     rating: 4.9,
     total_reviews: 28,
-    amenities: ['Coberta', 'Iluminacao', 'Vestiario', 'Estacionamento'],
+    amenities: ['Coberta', 'Iluminação', 'Vestiário', 'Estacionamento'],
     proprietario: { nome_empresa: 'Arena Integrada', telefone: '(44) 99999-2000' },
   },
   {
     id: 'demo-quadra-unespar',
     nome: 'Unespar Quadra',
-    descricao: 'Espaco poliesportivo para jogos coletivos e treinos semanais.',
+    descricao: 'Espaço poliesportivo para jogos coletivos e treinos semanais.',
     modalidade: 'poliesportiva',
     endereco: 'Av. Comendador Norberto Marcondes, 733',
     bairro: 'Jardim Cidade Nova',
-    cidade: 'Campo Mourao',
+    cidade: 'Campo Mourão',
     estado: 'PR',
     preco_hora: 75,
     imagem_url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=900&q=80',
@@ -33,18 +33,18 @@ export const demoQuadras = [
   },
   {
     id: 'demo-quadra-society',
-    nome: 'Arena Society Campo Mourao',
-    descricao: 'Campo society com grama sintetica, estacionamento e vestiarios.',
+    nome: 'Arena Society Campo Mourão',
+    descricao: 'Campo society com grama sintética, estacionamento e vestiários.',
     modalidade: 'society',
-    endereco: 'Rua Harrison Jose Borges, 455',
+    endereco: 'Rua Harrison José Borges, 455',
     bairro: 'Centro',
-    cidade: 'Campo Mourao',
+    cidade: 'Campo Mourão',
     estado: 'PR',
     preco_hora: 120,
     imagem_url: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?auto=format&fit=crop&w=900&q=80',
     rating: 4.8,
     total_reviews: 21,
-    amenities: ['Grama sintetica', 'Churrasqueira', 'Estacionamento'],
+    amenities: ['Grama sintética', 'Churrasqueira', 'Estacionamento'],
     proprietario: { nome_empresa: 'Arena Society', telefone: '(44) 99999-2200' },
   },
 ]
@@ -60,19 +60,19 @@ export const defaultHorarios = [
 export const fallbackCourtImage = 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=900&q=80'
 
 export const roleLabels = {
-  usuario: 'Usuario',
-  proprietario: 'Proprietario',
+  usuario: 'Usuário',
+  proprietario: 'Proprietário',
   admin: 'Administrador',
 }
 
-export const weekDays = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado']
+export const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
 export const sportLabels = {
   futebol: 'Futebol',
   futsal: 'Futsal',
-  volei: 'Volei',
+  volei: 'Vôlei',
   basquete: 'Basquete',
-  tenis: 'Tenis',
+  tenis: 'Tênis',
   beach_tennis: 'Beach Tennis',
   padel: 'Padel',
   poliesportiva: 'Poliesportiva',

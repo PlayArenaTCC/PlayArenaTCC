@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 
 const { Administrador, Proprietario, Usuario } = require('../models');
 const { sanitizeAccount, signToken } = require('../middleware/auth');
@@ -11,7 +12,48 @@ function normalizeEmail(email) {
 }
 
 function validatePassword(senha) {
-  return typeof senha === 'string' && senha.length >= 6;
+  return (
+    typeof senha === 'string'
+    && senha.length >= 8
+    && /[A-Z]/.test(senha)
+    && /\d/.test(senha)
+    && /[^\w\s]|_/.test(senha)
+  );
+}
+
+function validatePasswordConfirmation(senha, confirmarSenha) {
+  return senha === confirmarSenha;
+}
+
+function onlyDigits(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function isValidCpf(value) {
+  const digits = onlyDigits(value);
+
+  if (digits.length !== 11 || /^(\d)\1+$/.test(digits)) {
+    return false;
+  }
+
+  const firstCheckDigit = calculateCpfCheckDigit(digits.slice(0, 9));
+  const secondCheckDigit = calculateCpfCheckDigit(digits.slice(0, 10));
+
+  return firstCheckDigit === Number(digits[9]) && secondCheckDigit === Number(digits[10]);
+}
+
+function calculateCpfCheckDigit(baseDigits) {
+  const factor = baseDigits.length + 1;
+  const sum = baseDigits
+    .split('')
+    .reduce((total, digit, index) => total + Number(digit) * (factor - index), 0);
+  const remainder = (sum * 10) % 11;
+
+  return remainder === 10 ? 0 : remainder;
+}
+
+function passwordRequirementMessage() {
+  return 'A senha deve ter ao menos 8 caracteres, uma letra maiuscula, um numero e um caractere especial.';
 }
 
 function pickLoginModels(perfil) {
@@ -34,15 +76,44 @@ function pickLoginModels(perfil) {
   ];
 }
 
-async function registerUser({ nome, email, senha, telefone }) {
-  if (!nome || !email || !validatePassword(senha)) {
-    throw new HttpError(400, 'Informe nome, e-mail e uma senha com pelo menos 6 caracteres.');
+async function registerUser({ nome, cpf, email, senha, confirmar_senha, telefone }) {
+  const cpfNormalizado = onlyDigits(cpf);
+
+  if (!nome || !email) {
+    throw new HttpError(400, 'Informe nome, CPF, e-mail e senha.');
+  }
+
+  if (!isValidCpf(cpfNormalizado)) {
+    throw new HttpError(400, 'CPF invalido.');
+  }
+
+  if (!validatePassword(senha)) {
+    throw new HttpError(400, passwordRequirementMessage());
+  }
+
+  if (!validatePasswordConfirmation(senha, confirmar_senha)) {
+    throw new HttpError(400, 'As senhas nao conferem.');
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  const existingUsuario = await Usuario.findOne({
+    where: {
+      [Op.or]: [
+        { email: normalizedEmail },
+        { cpf: cpfNormalizado },
+      ],
+    },
+  });
+
+  if (existingUsuario) {
+    throw new HttpError(409, 'Este e-mail ou CPF ja esta cadastrado.');
   }
 
   try {
     const usuario = await Usuario.create({
       nome: String(nome).trim(),
-      email: normalizeEmail(email),
+      cpf: cpfNormalizado,
+      email: normalizedEmail,
       senha_hash: await bcrypt.hash(senha, SALT_ROUNDS),
       telefone: telefone || null,
     });
@@ -53,7 +124,7 @@ async function registerUser({ nome, email, senha, telefone }) {
     };
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      throw new HttpError(409, 'Este e-mail ja esta cadastrado.');
+      throw new HttpError(409, 'Este e-mail ou CPF ja esta cadastrado.');
     }
 
     throw error;
@@ -66,18 +137,47 @@ async function registerOwner({
   cpf_cnpj,
   email,
   senha,
+  confirmar_senha,
   telefone,
 }) {
-  if (!nome_responsavel || !email || !validatePassword(senha)) {
-    throw new HttpError(400, 'Informe responsavel, e-mail e uma senha com pelo menos 6 caracteres.');
+  const cpfNormalizado = onlyDigits(cpf_cnpj);
+
+  if (!isValidCpf(cpfNormalizado)) {
+    throw new HttpError(400, 'CPF invalido.');
+  }
+
+  if (!validatePassword(senha)) {
+    throw new HttpError(400, passwordRequirementMessage());
+  }
+
+  if (!nome_responsavel || !email) {
+    throw new HttpError(400, 'Informe responsavel, CPF, e-mail e senha.');
+  }
+
+  if (!validatePasswordConfirmation(senha, confirmar_senha)) {
+    throw new HttpError(400, 'As senhas nao conferem.');
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  const existingProprietario = await Proprietario.findOne({
+    where: {
+      [Op.or]: [
+        { email: normalizedEmail },
+        { cpf_cnpj: cpfNormalizado },
+      ],
+    },
+  });
+
+  if (existingProprietario) {
+    throw new HttpError(409, 'E-mail ou CPF ja cadastrado.');
   }
 
   try {
     const proprietario = await Proprietario.create({
       nome_responsavel: String(nome_responsavel).trim(),
       nome_empresa: nome_empresa || null,
-      cpf_cnpj: cpf_cnpj || null,
-      email: normalizeEmail(email),
+      cpf_cnpj: cpfNormalizado,
+      email: normalizedEmail,
       senha_hash: await bcrypt.hash(senha, SALT_ROUNDS),
       telefone: telefone || null,
     });
@@ -88,7 +188,7 @@ async function registerOwner({
     };
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      throw new HttpError(409, 'E-mail ou CPF/CNPJ ja cadastrado.');
+      throw new HttpError(409, 'E-mail ou CPF ja cadastrado.');
     }
 
     throw error;
@@ -116,7 +216,7 @@ async function loginAccount({ email, senha, perfil }) {
     }
 
     if (role === 'usuario' && account.status !== 'ativo') {
-      throw new HttpError(403, 'Usuario inativo.');
+      throw new HttpError(403, 'Usuário inativo.');
     }
 
     if (role !== 'usuario' && account.ativo === false) {

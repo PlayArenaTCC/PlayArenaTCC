@@ -4,15 +4,27 @@ import { Logo } from '../components/Logo'
 
 export function AppHeader({ activeView, darkTheme, navItems, session, onNavigate, onLogout, onToggleTheme }) {
   const [open, setOpen] = useState(false)
+  const accountName = session.usuario?.nome || session.usuario?.nome_responsavel || session.usuario?.nome_empresa || 'Conta'
 
-  function navigate(view) {
+  function navigate(view, { scrollTop = false } = {}) {
     onNavigate(view)
     setOpen(false)
+    if (scrollTop) {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      })
+    }
+  }
+
+  function goHome() {
+    navigate('home', { scrollTop: true })
   }
 
   return (
     <header className="app-header">
-      <Logo />
+      <button className="logo-button" type="button" onClick={goHome} aria-label="Voltar ao início">
+        <Logo />
+      </button>
       <button className="icon-button menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-label="Abrir menu">
         <Menu size={20} />
       </button>
@@ -39,11 +51,20 @@ export function AppHeader({ activeView, darkTheme, navItems, session, onNavigate
         {darkTheme ? <Sun size={17} /> : <Moon size={17} />}
       </button>
       <div className="account-pill">
-        <span className="avatar-dot">
-          <User size={16} />
-        </span>
-        <span>{session.usuario?.nome || session.usuario?.nome_responsavel || session.usuario?.nome_empresa || 'Conta'}</span>
-        <button type="button" onClick={onLogout} aria-label="Sair">
+        <button
+          className={activeView === 'perfil' ? 'account-profile-button is-active' : 'account-profile-button'}
+          type="button"
+          onClick={() => navigate('perfil', { scrollTop: true })}
+          aria-current={activeView === 'perfil' ? 'page' : undefined}
+          aria-label="Abrir meu perfil"
+          title="Meu perfil"
+        >
+          <span className="avatar-dot" aria-hidden="true">
+            <User size={16} />
+          </span>
+          <span className="account-name">{accountName}</span>
+        </button>
+        <button className="account-logout" type="button" onClick={onLogout} aria-label="Sair" title="Sair">
           <LogOut size={16} />
         </button>
       </div>

@@ -1,8 +1,9 @@
 import { roleLabels } from '../../data/demoData'
+import { formatCpf } from '../../utils/formatters'
 
 export function ProfileView({ session }) {
   const profile = session.usuario || {}
-  const nome = profile.nome || profile.nome_responsavel || profile.nome_empresa || 'Usuario PlayArena'
+  const nome = profile.nome || profile.nome_responsavel || profile.nome_empresa || 'Usuário PlayArena'
 
   return (
     <section className="profile-screen">
@@ -18,8 +19,14 @@ export function ProfileView({ session }) {
         </label>
         <label className="field">
           <span>Telefone</span>
-          <input value={profile.telefone || 'Nao informado'} readOnly />
+          <input value={profile.telefone || 'Não informado'} readOnly />
         </label>
+        {profile.cpf && (
+          <label className="field">
+            <span>CPF</span>
+            <input value={formatCpf(profile.cpf)} readOnly />
+          </label>
+        )}
         {profile.nome_empresa && (
           <label className="field">
             <span>Empresa</span>

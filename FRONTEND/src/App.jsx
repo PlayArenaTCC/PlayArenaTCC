@@ -10,18 +10,37 @@ import { UserPortal } from './features/user/UserPortal'
 import { usePlayArenaApp } from './hooks/usePlayArenaApp'
 import { AppHeader } from './layout/AppHeader'
 
+const defaultAuthEntry = { accountType: 'usuario', mode: 'login' }
+
 function App() {
   const playArena = usePlayArenaApp()
   const [darkTheme, setDarkTheme] = useState(() => localStorage.getItem('playarena-theme') === 'dark')
+  const [authEntry, setAuthEntry] = useState(defaultAuthEntry)
 
   useEffect(() => {
     localStorage.setItem('playarena-theme', darkTheme ? 'dark' : 'light')
   }, [darkTheme])
 
+  function handleLogout() {
+    setAuthEntry(defaultAuthEntry)
+    playArena.handleLogout()
+  }
+
+  function handleOwnerSignup() {
+    setAuthEntry({ accountType: 'proprietario', mode: 'register' })
+    playArena.handleLogout()
+  }
+
   if (!playArena.session) {
     return (
       <>
-        <AuthScreen loading={playArena.loading} onLogin={playArena.handleLogin} onRegister={playArena.handleRegister} />
+        <AuthScreen
+          initialAccountType={authEntry.accountType}
+          initialMode={authEntry.mode}
+          loading={playArena.loading}
+          onLogin={playArena.handleLogin}
+          onRegister={playArena.handleRegister}
+        />
         <Toast message={playArena.toast} onClose={() => playArena.setToast('')} />
       </>
     )
@@ -35,7 +54,7 @@ function App() {
         navItems={playArena.navItems}
         session={playArena.session}
         onNavigate={playArena.setActiveView}
-        onLogout={playArena.handleLogout}
+        onLogout={handleLogout}
         onToggleTheme={() => setDarkTheme((current) => !current)}
       />
 
@@ -50,6 +69,7 @@ function App() {
             setSearchQuery={playArena.setSearchQuery}
             selectedCourt={playArena.selectedCourt}
             onOpenCourt={playArena.openCourt}
+            onOwnerSignup={handleOwnerSignup}
             onReserve={playArena.setReservationCourt}
             onCancelReservation={playArena.handleCancelReservation}
             session={playArena.session}
@@ -60,7 +80,7 @@ function App() {
           <OwnerPortal
             activeView={playArena.activeView}
             session={playArena.session}
-            ownerQuadras={playArena.ownerQuadras.length ? playArena.ownerQuadras : playArena.quadras.slice(0, 1)}
+            ownerQuadras={playArena.ownerQuadras}
             ownerReservas={playArena.ownerReservas}
             onCreateCourt={playArena.handleCreateCourt}
             onCreateSchedule={playArena.handleCreateSchedule}
@@ -72,6 +92,7 @@ function App() {
         {playArena.session.usuario.perfil === 'admin' && (
           <AdminPortal
             activeView={playArena.activeView}
+            session={playArena.session}
             adminData={{
               ...playArena.adminData,
               quadras: playArena.adminData.quadras?.length ? playArena.adminData.quadras : playArena.quadras,

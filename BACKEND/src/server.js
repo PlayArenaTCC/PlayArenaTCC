@@ -10,7 +10,7 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('Banco Neon/PostgreSQL conectado.');
   } else {
-    console.warn('DATABASE_URL nao configurada. API iniciando sem testar o banco.');
+    console.warn('DATABASE_URL não configurada. API iniciando sem testar o banco.');
   }
 
   const app = createApp();

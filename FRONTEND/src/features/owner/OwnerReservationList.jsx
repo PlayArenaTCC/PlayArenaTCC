@@ -6,8 +6,8 @@ export function OwnerReservationList({ reservas, onStatusReservation, compact = 
     return (
       <section className={compact ? 'empty-state compact-empty' : 'empty-state'}>
         <CalendarDays size={30} />
-        <h2>Nenhuma reserva proxima</h2>
-        <p>As reservas dos seus espacos aparecerao aqui.</p>
+        <h2>Nenhuma reserva próxima</h2>
+        <p>As reservas dos seus espaços aparecerão aqui.</p>
       </section>
     )
   }
@@ -19,7 +19,7 @@ export function OwnerReservationList({ reservas, onStatusReservation, compact = 
           <div>
             <span className={`status-dot status-${reserva.status}`}>{reserva.status}</span>
             <h3>{reserva.quadra?.nome}</h3>
-            <p>{reserva.usuario?.nome || 'Usuario'} - {formatDate(reserva.data_reserva)} - {shortTime(reserva.hora_inicio)}</p>
+            <p>{reserva.usuario?.nome || 'Usuário'} - {formatDate(reserva.data_reserva)} - {shortTime(reserva.hora_inicio)}</p>
           </div>
           <strong>{formatCurrency(reserva.valor_total)}</strong>
           {!compact && (

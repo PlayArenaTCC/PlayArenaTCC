@@ -48,7 +48,7 @@ async function findReservationOrThrow(id) {
   });
 
   if (!reserva) {
-    throw new HttpError(404, 'Reserva nao encontrada.');
+    throw new HttpError(404, 'Reserva não encontrada.');
   }
 
   return reserva;
@@ -170,7 +170,7 @@ async function updateReservationStatus(auth, id, status) {
   const reserva = await findReservationOrThrow(id);
 
   if (!canChangeReservation(auth, reserva)) {
-    throw new HttpError(403, 'Voce nao pode alterar esta reserva.');
+    throw new HttpError(403, 'Você não pode alterar esta reserva.');
   }
 
   const statusPermitidos = ['pendente', 'confirmada', 'cancelada', 'concluida'];
@@ -188,11 +188,11 @@ async function cancelReservation(auth, id) {
   const reserva = await findReservationOrThrow(id);
 
   if (!canChangeReservation(auth, reserva)) {
-    throw new HttpError(403, 'Voce nao pode cancelar esta reserva.');
+    throw new HttpError(403, 'Você não pode cancelar esta reserva.');
   }
 
   if (reserva.status === 'concluida') {
-    throw new HttpError(400, 'Reservas concluidas nao podem ser canceladas.');
+    throw new HttpError(400, 'Reservas concluídas não podem ser canceladas.');
   }
 
   reserva.status = 'cancelada';

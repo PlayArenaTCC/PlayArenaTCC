@@ -20,7 +20,7 @@ function createCorsOptions() {
         return callback(null, true);
       }
 
-      return callback(new Error('Origem nao permitida pelo CORS.'));
+      return callback(new Error('Origem não permitida pelo CORS.'));
     },
   };
 }
@@ -52,7 +52,7 @@ function createApp() {
 
   app.use((request, response) => {
     response.status(404).json({
-      message: `Rota ${request.method} ${request.originalUrl} nao encontrada.`,
+      message: `Rota ${request.method} ${request.originalUrl} não encontrada.`,
     });
   });
 

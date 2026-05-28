@@ -42,7 +42,7 @@ async function createSchedule(request, response) {
 
 async function deleteSchedule(request, response) {
   await quadraService.deleteSchedule(request.auth, request.params.quadraId, request.params.horarioId);
-  response.json({ message: 'Horario removido da agenda.' });
+  response.json({ message: 'Horário removido da agenda.' });
 }
 
 module.exports = {

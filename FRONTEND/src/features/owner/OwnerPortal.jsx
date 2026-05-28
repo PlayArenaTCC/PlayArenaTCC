@@ -27,12 +27,12 @@ export function OwnerPortal({
       <section className="screen-stack">
         <div className="section-title compact">
           <div>
-            <span>Gestao</span>
-            <h1>Meus Espacos</h1>
+            <span>Gestão</span>
+            <h1>Meus Espaços</h1>
           </div>
           <button className="primary-action slim-action" type="button" onClick={() => setShowForm((value) => !value)}>
             <Plus size={17} />
-            Novo Espaco
+            Novo Espaço
           </button>
         </div>
         {showForm && <CourtForm onSubmit={onCreateCourt} loading={loading} />}
@@ -72,18 +72,18 @@ export function OwnerPortal({
         </div>
       </div>
       <div className="metrics-grid">
-        <Metric icon={Building2} label="Meus espacos" value={ownerQuadras.length} />
+        <Metric icon={Building2} label="Meus espaços" value={ownerQuadras.length} />
         <Metric icon={CalendarDays} label="Reservas recebidas" value={ownerReservas.length} tone="blue" />
         <Metric icon={DollarSign} label="Receita estimada" value={formatCurrency(totalReceita)} tone="yellow" />
         <Metric icon={BadgeCheck} label="Status" value={session.usuario?.status_aprovacao || 'pendente'} tone="purple" />
       </div>
       <section className="split-panels">
         <div className="plain-panel">
-          <h2>Proximas Reservas</h2>
+          <h2>Próximas Reservas</h2>
           <OwnerReservationList reservas={ownerReservas.slice(0, 3)} onStatusReservation={onStatusReservation} compact />
         </div>
         <div className="plain-panel">
-          <h2>Meus Espacos</h2>
+          <h2>Meus Espaços</h2>
           <div className="mini-list">
             {ownerQuadras.slice(0, 4).map((quadra) => (
               <span key={quadra.id}>

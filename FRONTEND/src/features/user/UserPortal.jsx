@@ -15,6 +15,7 @@ export function UserPortal({
   setSearchQuery,
   selectedCourt,
   onOpenCourt,
+  onOwnerSignup,
   onReserve,
   onCancelReservation,
   session,
@@ -56,7 +57,9 @@ export function UserPortal({
   return (
     <HomeView
       quadras={quadras}
+      onNavigate={setActiveView}
       onOpenCourt={onOpenCourt}
+      onOwnerSignup={onOwnerSignup}
       onSearch={(query) => {
         setSearchQuery(query)
         setActiveView('buscar')

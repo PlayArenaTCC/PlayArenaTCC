@@ -1,38 +1,73 @@
 import { useState } from 'react'
-import { Building2, Eye, EyeOff, LockKeyhole, Mail, Phone, UserRound } from 'lucide-react'
+import { Building2, Eye, EyeOff, IdCard, LockKeyhole, Mail, Phone, UserRound } from 'lucide-react'
 import { Logo } from '../../components/Logo'
 import loginBackgroundUrl from '../../../IMG/foto tela de login.png'
 
-export function AuthScreen({ loading, onLogin, onRegister }) {
-  const [mode, setMode] = useState('login')
-  const [accountType, setAccountType] = useState('usuario')
+export function AuthScreen({ initialAccountType = 'usuario', initialMode = 'login', loading, onLogin, onRegister }) {
+  const [mode, setMode] = useState(initialMode)
+  const [accountType, setAccountType] = useState(initialAccountType)
   const [showPassword, setShowPassword] = useState(false)
-  const [form, setForm] = useState({
+  const initialForm = {
     nome: '',
     nome_empresa: '',
+    cpf: '',
     cpf_cnpj: '',
     email: '',
     telefone: '',
     senha: '',
-  })
+    confirmar_senha: '',
+  }
+  const [form, setForm] = useState(initialForm)
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }))
   }
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault()
 
     if (mode === 'login') {
-      onLogin({
+      await onLogin({
         email: form.email,
         senha: form.senha,
       })
       return
     }
 
+    const cpfFieldName = accountType === 'proprietario' ? 'cpf_cnpj' : 'cpf'
+    const cpfInput = event.currentTarget.elements[cpfFieldName]
+
+    if (!isValidCpf(form[cpfFieldName])) {
+      cpfInput.setCustomValidity('CPF invalido.')
+      cpfInput.reportValidity()
+      return
+    }
+
+    const passwordInput = event.currentTarget.elements.senha
+    const passwordError = getPasswordError(form.senha)
+
+    if (passwordError) {
+      passwordInput.setCustomValidity(passwordError)
+      passwordInput.reportValidity()
+      return
+    }
+
+    if (form.senha !== form.confirmar_senha) {
+      const confirmPasswordInput = event.currentTarget.elements.confirmar_senha
+      confirmPasswordInput.setCustomValidity('As senhas nao conferem.')
+      confirmPasswordInput.reportValidity()
+      return
+    }
+
+    if (form.telefone && !isValidPhone(form.telefone)) {
+      const phoneInput = event.currentTarget.elements.telefone
+      phoneInput.setCustomValidity('Telefone deve seguir o formato 44 99921435.')
+      phoneInput.reportValidity()
+      return
+    }
+
     if (accountType === 'proprietario') {
-      onRegister({
+      await onRegister({
         perfil: 'proprietario',
         nome_responsavel: form.nome,
         nome_empresa: form.nome_empresa,
@@ -40,17 +75,22 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
         email: form.email,
         telefone: form.telefone,
         senha: form.senha,
+        confirmar_senha: form.confirmar_senha,
       })
+      setForm(initialForm)
       return
     }
 
-    onRegister({
+    await onRegister({
       perfil: 'usuario',
       nome: form.nome,
+      cpf: form.cpf,
       email: form.email,
       telefone: form.telefone,
       senha: form.senha,
+      confirmar_senha: form.confirmar_senha,
     })
+    setForm(initialForm)
   }
 
   return (
@@ -59,7 +99,7 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
       style={{ '--auth-bg': `url("${loginBackgroundUrl}")` }}
     >
       <section className="auth-hero">
-        <form className="auth-panel" onSubmit={submit}>
+        <form className="auth-panel" onSubmit={submit} autoComplete="off">
           <div className="auth-form-content">
             <div className="auth-logo-orbit">
               <Logo compact />
@@ -97,9 +137,34 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
                 <div className="input-with-icon">
                   <UserRound size={18} />
                   <input
+                    name="nome"
+                    autoComplete="name"
                     value={form.nome}
                     onChange={(event) => updateField('nome', event.target.value)}
                     placeholder={accountType === 'proprietario' ? 'Nome do responsavel' : 'Seu nome'}
+                    required
+                  />
+                </div>
+              </label>
+            )}
+
+            {mode === 'register' && accountType === 'usuario' && (
+              <label className="field">
+                <span>CPF</span>
+                <div className="input-with-icon">
+                  <IdCard size={18} />
+                  <input
+                    name="cpf"
+                    value={form.cpf}
+                    onChange={(event) => {
+                      event.target.setCustomValidity('')
+                      updateField('cpf', formatCpf(event.target.value))
+                    }}
+                    placeholder="000.000.000-00"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    minLength={14}
+                    maxLength={14}
                     required
                   />
                 </div>
@@ -112,6 +177,8 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
                 <div className="input-with-icon">
                   <Building2 size={18} />
                   <input
+                    name="nome_empresa"
+                    autoComplete="organization"
                     value={form.nome_empresa}
                     onChange={(event) => updateField('nome_empresa', event.target.value)}
                     placeholder="Arena, clube ou empresa"
@@ -125,6 +192,8 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
               <div className="input-with-icon">
                 <Mail size={18} />
                 <input
+                  name="email"
+                  autoComplete="email"
                   type="email"
                   value={form.email}
                   onChange={(event) => updateField('email', event.target.value)}
@@ -140,9 +209,17 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
                 <div className="input-with-icon">
                   <Phone size={18} />
                   <input
+                    name="telefone"
+                    autoComplete="tel"
+                    inputMode="numeric"
+                    pattern="\d{2} \d{8}"
+                    maxLength={11}
                     value={form.telefone}
-                    onChange={(event) => updateField('telefone', event.target.value)}
-                    placeholder="(44) 99999-0000"
+                    onChange={(event) => {
+                      event.target.setCustomValidity('')
+                      updateField('telefone', formatPhone(event.target.value))
+                    }}
+                    placeholder="44 99921435"
                   />
                 </div>
               </label>
@@ -150,13 +227,22 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
 
             {mode === 'register' && accountType === 'proprietario' && (
               <label className="field">
-                <span>CPF ou CNPJ</span>
+                <span>CPF</span>
                 <div className="input-with-icon">
-                  <Building2 size={18} />
+                  <IdCard size={18} />
                   <input
+                    name="cpf_cnpj"
                     value={form.cpf_cnpj}
-                    onChange={(event) => updateField('cpf_cnpj', event.target.value)}
-                    placeholder="Documento do proprietario"
+                    onChange={(event) => {
+                      event.target.setCustomValidity('')
+                      updateField('cpf_cnpj', formatCpf(event.target.value))
+                    }}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    minLength={14}
+                    maxLength={14}
+                    required
+                    placeholder="000.000.000-00"
                   />
                 </div>
               </label>
@@ -167,12 +253,18 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
               <div className="input-with-icon">
                 <LockKeyhole size={18} />
                 <input
+                  name="senha"
+                  autoComplete="new-password"
                   type={showPassword ? 'text' : 'password'}
                   value={form.senha}
-                  onChange={(event) => updateField('senha', event.target.value)}
-                  placeholder="Minimo de 6 caracteres"
+                  onChange={(event) => {
+                    event.target.setCustomValidity('')
+                    event.currentTarget.form?.elements.confirmar_senha?.setCustomValidity('')
+                    updateField('senha', event.target.value)
+                  }}
+                  placeholder="Ex.: Teste@123"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   className="password-toggle"
@@ -185,6 +277,28 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
                 </button>
               </div>
             </label>
+
+            {mode === 'register' && (
+              <label className="field">
+                <span>Confirmar senha</span>
+                <div className="input-with-icon">
+                  <LockKeyhole size={18} />
+                  <input
+                    name="confirmar_senha"
+                    autoComplete="new-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.confirmar_senha}
+                    onChange={(event) => {
+                      event.target.setCustomValidity('')
+                      updateField('confirmar_senha', event.target.value)
+                    }}
+                    placeholder="Digite a senha novamente"
+                    required
+                    minLength={8}
+                  />
+                </div>
+              </label>
+            )}
 
             <div className="auth-actions">
               <button className="primary-action" type="submit" disabled={loading}>
@@ -214,4 +328,63 @@ export function AuthScreen({ loading, onLogin, onRegister }) {
       </section>
     </main>
   )
+}
+
+function formatCpf(value) {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 11)
+
+  return digits
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+}
+
+function formatPhone(value) {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 10)
+
+  if (digits.length <= 2) {
+    return digits
+  }
+
+  return `${digits.slice(0, 2)} ${digits.slice(2)}`
+}
+
+function isValidPhone(value) {
+  return /^\d{2} \d{8}$/.test(String(value || ''))
+}
+
+function isValidCpf(value) {
+  const digits = String(value || '').replace(/\D/g, '')
+
+  if (digits.length !== 11 || /^(\d)\1+$/.test(digits)) {
+    return false
+  }
+
+  const firstCheckDigit = calculateCpfCheckDigit(digits.slice(0, 9))
+  const secondCheckDigit = calculateCpfCheckDigit(digits.slice(0, 10))
+
+  return firstCheckDigit === Number(digits[9]) && secondCheckDigit === Number(digits[10])
+}
+
+function calculateCpfCheckDigit(baseDigits) {
+  const factor = baseDigits.length + 1
+  const sum = baseDigits
+    .split('')
+    .reduce((total, digit, index) => total + Number(digit) * (factor - index), 0)
+  const remainder = (sum * 10) % 11
+
+  return remainder === 10 ? 0 : remainder
+}
+
+function getPasswordError(password) {
+  const hasRequiredLength = String(password || '').length >= 8
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasNumber = /\d/.test(password)
+  const hasSpecialCharacter = /[^\w\s]|_/.test(password)
+
+  if (hasRequiredLength && hasUppercase && hasNumber && hasSpecialCharacter) {
+    return ''
+  }
+
+  return 'A senha deve ter ao menos 8 caracteres, uma letra maiuscula, um numero e um caractere especial.'
 }

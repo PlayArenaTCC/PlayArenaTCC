@@ -9,6 +9,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(120),
       allowNull: false,
     },
+    cpf: {
+      type: DataTypes.STRING(11),
+      allowNull: true,
+      unique: true,
+      validate: {
+        is: /^\d{11}$/,
+      },
+    },
     email: {
       type: DataTypes.STRING(160),
       allowNull: false,

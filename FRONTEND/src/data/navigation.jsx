@@ -19,14 +19,14 @@ export const userNav = [
 
 export const ownerNav = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'espacos', label: 'Meus Espacos', icon: Building2 },
+  { id: 'espacos', label: 'Meus Espaços', icon: Building2 },
   { id: 'reservas', label: 'Reservas', icon: CalendarDays },
   { id: 'perfil', label: 'Perfil', icon: User },
 ]
 
 export const adminNav = [
   { id: 'dashboard', label: 'Painel Admin', icon: Shield },
-  { id: 'espacos', label: 'Espacos', icon: Building2 },
+  { id: 'espacos', label: 'Espaços', icon: Building2 },
   { id: 'reservas', label: 'Reservas', icon: CalendarDays },
-  { id: 'usuarios', label: 'Usuarios', icon: Users },
+  { id: 'usuarios', label: 'Usuários', icon: Users },
 ]

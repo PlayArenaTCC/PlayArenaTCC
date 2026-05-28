@@ -1,9 +1,10 @@
 import { Building2, DollarSign, Shield, Trophy, Users } from 'lucide-react'
 import { Metric } from '../../components/Metric'
-import { formatCurrency } from '../../utils/formatters'
+import { formatCpf, formatCurrency } from '../../utils/formatters'
 import { OwnerReservationList } from '../owner/OwnerReservationList'
+import { ProfileView } from '../profile/ProfileView'
 
-export function AdminPortal({ activeView, adminData, onStatusReservation, onUserStatus, onOwnerApproval }) {
+export function AdminPortal({ activeView, adminData, session, onStatusReservation, onUserStatus, onOwnerApproval }) {
   const indicadores = adminData.indicadores || {}
   const usuarios = adminData.usuarios || []
   const proprietarios = adminData.proprietarios || []
@@ -13,7 +14,7 @@ export function AdminPortal({ activeView, adminData, onStatusReservation, onUser
   if (activeView === 'espacos') {
     return (
       <section className="screen-stack">
-        <AdminTitle title="Espacos do Administrador" subtitle="Supervisao" />
+        <AdminTitle title="Espaços do Administrador" subtitle="Supervisão" />
         <div className="list-stack">
           {quadras.map((quadra) => (
             <article className="list-row" key={quadra.id}>
@@ -48,14 +49,17 @@ export function AdminPortal({ activeView, adminData, onStatusReservation, onUser
 
     return (
       <section className="screen-stack">
-        <AdminTitle title="Usuarios do Administrador" subtitle="Contas" />
+        <AdminTitle title="Usuários do Administrador" subtitle="Contas" />
         <div className="list-stack">
           {accounts.map((account) => (
             <article className="list-row" key={`${account.email}-${account.id}`}>
               <div>
                 <span className="status-dot status-confirmada">{account.status || account.status_aprovacao || 'ativo'}</span>
                 <h3>{account.nome || account.nome_responsavel || account.nome_empresa}</h3>
-                <p>{account.email} - {account.tipo_conta}</p>
+                <p>
+                  {account.email} - {account.tipo_conta}
+                  {account.cpf ? ` - CPF ${formatCpf(account.cpf)}` : ''}
+                </p>
               </div>
               {account.tipo_conta === 'usuario' ? (
                 <button
@@ -78,13 +82,17 @@ export function AdminPortal({ activeView, adminData, onStatusReservation, onUser
     )
   }
 
+  if (activeView === 'perfil') {
+    return <ProfileView session={session} />
+  }
+
   return (
     <section className="screen-stack admin-dashboard">
-      <AdminTitle title="Painel Administrativo" subtitle="Visao geral" />
+      <AdminTitle title="Painel Administrativo" subtitle="Visão geral" />
       <div className="metrics-grid">
-        <Metric icon={Users} label="Usuarios" value={indicadores.totalUsuarios || usuarios.length} tone="blue" />
-        <Metric icon={Building2} label="Proprietarios" value={indicadores.totalProprietarios || proprietarios.length} />
-        <Metric icon={Trophy} label="Espacos" value={indicadores.totalQuadras || quadras.length} tone="purple" />
+        <Metric icon={Users} label="Usuários" value={indicadores.totalUsuarios || usuarios.length} tone="blue" />
+        <Metric icon={Building2} label="Proprietários" value={indicadores.totalProprietarios || proprietarios.length} />
+        <Metric icon={Trophy} label="Espaços" value={indicadores.totalQuadras || quadras.length} tone="purple" />
         <Metric icon={DollarSign} label="Receita" value={formatCurrency(indicadores.receita || 0)} tone="yellow" />
       </div>
       <section className="plain-panel">

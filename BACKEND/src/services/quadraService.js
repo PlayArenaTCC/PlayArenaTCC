@@ -25,7 +25,7 @@ async function findCourtOrThrow(id) {
   const quadra = await Quadra.findByPk(id);
 
   if (!quadra) {
-    throw new HttpError(404, 'Quadra nao encontrada.');
+    throw new HttpError(404, 'Quadra não encontrada.');
   }
 
   return quadra;
@@ -99,7 +99,7 @@ async function getCourt(id) {
   });
 
   if (!quadra) {
-    throw new HttpError(404, 'Quadra nao encontrada.');
+    throw new HttpError(404, 'Quadra não encontrada.');
   }
 
   return quadra;
@@ -121,7 +121,7 @@ async function createCourt(auth, {
   const ownerId = auth.perfil === 'proprietario' ? auth.id : proprietario_id;
 
   if (!ownerId || !nome || !endereco) {
-    throw new HttpError(400, 'Informe proprietario, nome e endereco da quadra.');
+    throw new HttpError(400, 'Informe proprietário, nome e endereço da quadra.');
   }
 
   return Quadra.create({
@@ -131,7 +131,7 @@ async function createCourt(auth, {
     modalidade: modalidade || 'poliesportiva',
     endereco,
     bairro: bairro || null,
-    cidade: cidade || 'Campo Mourao',
+    cidade: cidade || 'Campo Mourão',
     estado: estado || 'PR',
     cep: cep || null,
     preco_hora: preco_hora || 0,
@@ -143,7 +143,7 @@ async function updateCourt(auth, id, body) {
   const quadra = await findCourtOrThrow(id);
 
   if (!canManageCourt(auth, quadra)) {
-    throw new HttpError(403, 'Voce nao pode editar esta quadra.');
+    throw new HttpError(403, 'Você não pode editar esta quadra.');
   }
 
   const fields = [
@@ -174,7 +174,7 @@ async function deactivateCourt(auth, id) {
   const quadra = await findCourtOrThrow(id);
 
   if (!canManageCourt(auth, quadra)) {
-    throw new HttpError(403, 'Voce nao pode remover esta quadra.');
+    throw new HttpError(403, 'Você não pode remover esta quadra.');
   }
 
   quadra.ativa = false;
@@ -234,7 +234,7 @@ async function createSchedule(auth, courtId, {
   const quadra = await findCourtOrThrow(courtId);
 
   if (!canManageCourt(auth, quadra)) {
-    throw new HttpError(403, 'Voce nao pode gerenciar horarios desta quadra.');
+    throw new HttpError(403, 'Você não pode gerenciar horários desta quadra.');
   }
 
   if (!hora_inicio || !hora_fim || (!data && dia_semana === undefined)) {
@@ -263,7 +263,7 @@ async function deleteSchedule(auth, courtId, horarioId) {
   const quadra = await findCourtOrThrow(courtId);
 
   if (!canManageCourt(auth, quadra)) {
-    throw new HttpError(403, 'Voce nao pode gerenciar horarios desta quadra.');
+    throw new HttpError(403, 'Você não pode gerenciar horários desta quadra.');
   }
 
   const horario = await HorarioDisponivel.findOne({
@@ -274,7 +274,7 @@ async function deleteSchedule(auth, courtId, horarioId) {
   });
 
   if (!horario) {
-    throw new HttpError(404, 'Horario nao encontrado.');
+    throw new HttpError(404, 'Horário não encontrado.');
   }
 
   horario.disponivel = false;

@@ -65,7 +65,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
         <button className="icon-button modal-close" type="button" onClick={onClose} aria-label="Fechar">
           <X size={18} />
         </button>
-        <h2>Reservar Espaco</h2>
+        <h2>Reservar Espaço</h2>
         <p>{quadra.nome}</p>
 
         <label className="field">
@@ -74,7 +74,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
         </label>
 
         <label className="field">
-          <span>Horario disponivel</span>
+          <span>Horário disponível</span>
           <select value={horarioId} onChange={(event) => setHorarioId(event.target.value)}>
             {horarios.map((item) => (
               <option key={item.id} value={item.id} disabled={item.ocupado}>
@@ -88,14 +88,12 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
           <span>Forma de pagamento</span>
           <select value={formaPagamento} onChange={(event) => setFormaPagamento(event.target.value)}>
             <option value="pix">Pix</option>
-            <option value="cartao">Cartao</option>
-            <option value="dinheiro">Dinheiro</option>
-            <option value="nao_informado">Nao informado</option>
+            <option value="cartao">Cartão</option>
           </select>
         </label>
 
         <label className="field">
-          <span>Observacao opcional</span>
+          <span>Observação opcional</span>
           <textarea value={observacoes} onChange={(event) => setObservacoes(event.target.value)} placeholder="Ex.: confirmar uso de coletes" />
         </label>
 

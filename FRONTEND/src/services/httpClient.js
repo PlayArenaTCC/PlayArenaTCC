@@ -13,7 +13,7 @@ export async function apiRequest(path, { method = 'GET', token, body } = {}) {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    throw new Error(data.message || 'Nao foi possivel concluir a operacao.')
+    throw new Error(data.message || 'Não foi possível concluir a operação.')
   }
 
   return data

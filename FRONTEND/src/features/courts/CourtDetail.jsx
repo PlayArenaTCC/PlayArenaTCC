@@ -1,6 +1,6 @@
-import { ArrowLeft, CalendarDays, Check, Clock, DollarSign, MapPin } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Clock, DollarSign, MapPin } from 'lucide-react'
 import { Metric } from '../../components/Metric'
-import { defaultHorarios, fallbackCourtImage, sportLabels, weekDays } from '../../data/demoData'
+import { defaultHorarios, fallbackCourtImage, sportLabels } from '../../data/demoData'
 import { formatCurrency, shortTime } from '../../utils/formatters'
 
 export function CourtDetail({ quadra, onBack, onReserve }) {
@@ -28,20 +28,20 @@ export function CourtDetail({ quadra, onBack, onReserve }) {
             </div>
             <span className="sport-badge inline-badge">{sportLabels[quadra.modalidade] || quadra.modalidade}</span>
           </div>
-          <p>{quadra.descricao || 'Espaco esportivo de qualidade para voce aproveitar seu jogo.'}</p>
+          <p>{quadra.descricao || 'Espaço esportivo de qualidade para você aproveitar seu jogo.'}</p>
           <hr />
-          <h2>Informacoes</h2>
+          <h2>Informações</h2>
           <div className="info-grid">
-            <Metric icon={DollarSign} label="Preco" value={formatCurrency(quadra.preco_hora) + '/hora'} />
-            <Metric icon={Clock} label="Horarios" value={`${shortTime(horarios[0]?.hora_inicio)} as ${shortTime(horarios[horarios.length - 1]?.hora_fim)}`} tone="blue" />
-            <Metric icon={MapPin} label="Endereco" value={quadra.endereco} tone="purple" />
-            <Metric icon={CalendarDays} label="Dias Disponiveis" value={`${new Set(horarios.map((item) => item.dia_semana)).size} dias/semana`} tone="yellow" />
+            <Metric icon={DollarSign} label="Preço" value={formatCurrency(quadra.preco_hora) + '/hora'} />
+            <Metric icon={Clock} label="Horários" value={`${shortTime(horarios[0]?.hora_inicio)} às ${shortTime(horarios[horarios.length - 1]?.hora_fim)}`} tone="blue" />
+            <Metric icon={MapPin} label="Endereço" value={quadra.endereco} tone="purple" />
+            <Metric icon={CalendarDays} label="Dias disponíveis" value={`${new Set(horarios.map((item) => item.dia_semana)).size} dias/semana`} tone="yellow" />
           </div>
           <hr />
           <h2>Comodidades</h2>
           <div className="amenities-grid">
             {(quadra.amenities || []).map((item) => (
-              <span key={item}><Check size={18} /> {item}</span>
+              <span key={item}><i className="amenity-dot" aria-hidden="true" /> {item}</span>
             ))}
           </div>
         </div>
@@ -50,15 +50,8 @@ export function CourtDetail({ quadra, onBack, onReserve }) {
           <button className="primary-action" type="button" onClick={() => onReserve(quadra)}>
             Reservar Agora
           </button>
-          <small>Voce nao sera cobrado ainda</small>
+          <small>Você não será cobrado ainda</small>
         </aside>
-      </div>
-      <div className="schedule-strip">
-        {horarios.slice(0, 5).map((horario) => (
-          <span key={`${horario.id}-${horario.hora_inicio}`}>
-            {weekDays[horario.dia_semana] || 'Data fixa'} {shortTime(horario.hora_inicio)}
-          </span>
-        ))}
       </div>
       <button className="ghost-link align-left detail-mobile-back" type="button" onClick={onBack}>
         Voltar

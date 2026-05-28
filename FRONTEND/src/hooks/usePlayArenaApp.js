@@ -161,7 +161,7 @@ export function usePlayArenaApp() {
     const horario = payload.horario
 
     if (!court || !horario) {
-      showToast('Escolha um horario para reservar.')
+      showToast('Escolha um horário para reservar.')
       return
     }
 
@@ -237,7 +237,7 @@ export function usePlayArenaApp() {
           ? { ...item, horarios_disponiveis: [...(item.horarios_disponiveis || []), horario] }
           : item
       )))
-      showToast('Horario adicionado.')
+      showToast('Horário adicionado.')
     } catch (error) {
       showToast(error.message)
     }
@@ -270,7 +270,7 @@ export function usePlayArenaApp() {
           item.id === account.id ? { ...item, status } : item
         )),
       }))
-      showToast('Usuario atualizado.')
+      showToast('Usuário atualizado.')
     } catch (error) {
       showToast(error.message)
     }
@@ -285,7 +285,7 @@ export function usePlayArenaApp() {
           item.id === account.id ? { ...item, status_aprovacao: statusAprovacao } : item
         )),
       }))
-      showToast('Proprietario atualizado.')
+      showToast('Proprietário atualizado.')
     } catch (error) {
       showToast(error.message)
     }

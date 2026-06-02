@@ -1,7 +1,165 @@
 const { Op } = require('sequelize');
 
-const { HorarioDisponivel, Proprietario, Quadra, Reserva } = require('../models');
+const {
+  HorarioDisponivel,
+  Proprietario,
+  Quadra,
+  Reserva,
+  sequelize,
+} = require('../models');
 const { HttpError } = require('../utils/http');
+
+const WEEKDAY_BY_NAME = {
+  domingo: 0,
+  dom: 0,
+  segunda: 1,
+  seg: 1,
+  terca: 2,
+  terça: 2,
+  ter: 2,
+  quarta: 3,
+  qua: 3,
+  quinta: 4,
+  qui: 4,
+  sexta: 5,
+  sex: 5,
+  sabado: 6,
+  sábado: 6,
+  sab: 6,
+};
+
+function normalizeStringList(value) {
+  const source = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : [];
+
+  return source
+    .map((item) => String(item || '').trim())
+    .filter(Boolean);
+}
+
+function normalizeWeekday(value) {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const numericValue = Number(value);
+  if (Number.isInteger(numericValue) && numericValue >= 0 && numericValue <= 6) {
+    return numericValue;
+  }
+
+  const textValue = String(value)
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  return Object.prototype.hasOwnProperty.call(WEEKDAY_BY_NAME, textValue)
+    ? WEEKDAY_BY_NAME[textValue]
+    : null;
+}
+
+function normalizeTime(value) {
+  const match = String(value || '').match(/^(\d{1,2}):(\d{2})/);
+
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return null;
+  }
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+function timeToMinutes(value) {
+  const [hours, minutes] = String(value).split(':').map(Number);
+  return (hours * 60) + minutes;
+}
+
+function minutesToTime(value) {
+  const hours = Math.floor(value / 60);
+  const minutes = value % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+function normalizeOperatingHours(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      const rawDays = Array.isArray(item.dias)
+        ? item.dias
+        : Array.isArray(item.dias_semana)
+          ? item.dias_semana
+          : [item.dia_semana ?? item.dia];
+      const dias = [...new Set(rawDays.map(normalizeWeekday))]
+        .filter((day) => day !== null)
+        .sort((a, b) => a - b);
+      const horaInicio = normalizeTime(item.hora_inicio || item.inicio);
+      const horaFim = normalizeTime(item.hora_fim || item.fim);
+
+      if (!dias.length || !horaInicio || !horaFim || timeToMinutes(horaFim) <= timeToMinutes(horaInicio)) {
+        return null;
+      }
+
+      return {
+        dias,
+        hora_inicio: horaInicio,
+        hora_fim: horaFim,
+      };
+    })
+    .filter(Boolean);
+}
+
+function buildPhotoList(imagemUrl, fotos) {
+  const secondaryPhotos = normalizeStringList(fotos);
+  const primaryPhoto = String(imagemUrl || secondaryPhotos[0] || '').trim();
+
+  if (!primaryPhoto) {
+    return secondaryPhotos;
+  }
+
+  return [
+    primaryPhoto,
+    ...secondaryPhotos.filter((photo) => photo !== primaryPhoto),
+  ];
+}
+
+function buildScheduleRows(quadraId, horariosFuncionamento, valor) {
+  return horariosFuncionamento.flatMap((range) => {
+    const start = timeToMinutes(range.hora_inicio);
+    const end = timeToMinutes(range.hora_fim);
+    const slots = [];
+
+    range.dias.forEach((diaSemana) => {
+      for (let current = start; current < end; current += 60) {
+        const slotEnd = Math.min(current + 60, end);
+
+        if (slotEnd > current) {
+          slots.push({
+            quadra_id: quadraId,
+            data: null,
+            dia_semana: diaSemana,
+            hora_inicio: minutesToTime(current),
+            hora_fim: minutesToTime(slotEnd),
+            valor,
+          });
+        }
+      }
+    });
+
+    return slots;
+  });
+}
 
 function courtIncludes() {
   return [
@@ -117,6 +275,12 @@ async function createCourt(auth, {
   cep,
   preco_hora,
   imagem_url,
+  fotos,
+  imagens,
+  amenities,
+  comodidades,
+  horarios_funcionamento,
+  funcionamento,
 }) {
   const ownerId = auth.perfil === 'proprietario' ? auth.id : proprietario_id;
 
@@ -124,19 +288,40 @@ async function createCourt(auth, {
     throw new HttpError(400, 'Informe proprietário, nome e endereço da quadra.');
   }
 
-  return Quadra.create({
-    proprietario_id: ownerId,
-    nome,
-    descricao: descricao || null,
-    modalidade: modalidade || 'poliesportiva',
-    endereco,
-    bairro: bairro || null,
-    cidade: cidade || 'Campo Mourão',
-    estado: estado || 'PR',
-    cep: cep || null,
-    preco_hora: preco_hora || 0,
-    imagem_url: imagem_url || null,
+  const normalizedAmenities = normalizeStringList(amenities || comodidades);
+  const normalizedOperatingHours = normalizeOperatingHours(horarios_funcionamento || funcionamento);
+  const normalizedPhotos = buildPhotoList(imagem_url, fotos || imagens);
+  const hourlyPrice = preco_hora || 0;
+  let courtId;
+
+  await sequelize.transaction(async (transaction) => {
+    const quadra = await Quadra.create({
+      proprietario_id: ownerId,
+      nome,
+      descricao: descricao || null,
+      modalidade: modalidade || 'poliesportiva',
+      endereco,
+      bairro: bairro || null,
+      cidade: cidade || 'Campo Mourão',
+      estado: estado || 'PR',
+      cep: cep || null,
+      preco_hora: hourlyPrice,
+      imagem_url: normalizedPhotos[0] || imagem_url || null,
+      fotos: normalizedPhotos,
+      horarios_funcionamento: normalizedOperatingHours,
+      amenities: normalizedAmenities,
+    }, { transaction });
+
+    const scheduleRows = buildScheduleRows(quadra.id, normalizedOperatingHours, hourlyPrice);
+
+    if (scheduleRows.length) {
+      await HorarioDisponivel.bulkCreate(scheduleRows, { transaction });
+    }
+
+    courtId = quadra.id;
   });
+
+  return getCourt(courtId);
 }
 
 async function updateCourt(auth, id, body) {
@@ -157,6 +342,9 @@ async function updateCourt(auth, id, body) {
     'cep',
     'preco_hora',
     'imagem_url',
+    'fotos',
+    'horarios_funcionamento',
+    'amenities',
     'ativa',
   ];
 

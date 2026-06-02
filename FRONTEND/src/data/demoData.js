@@ -67,14 +67,18 @@ export const roleLabels = {
 
 export const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
-export const sportLabels = {
-  futebol: 'Futebol',
-  futsal: 'Futsal',
-  volei: 'Vôlei',
-  basquete: 'Basquete',
-  tenis: 'Tênis',
-  beach_tennis: 'Beach Tennis',
-  padel: 'Padel',
-  poliesportiva: 'Poliesportiva',
-  society: 'Society',
-}
+export const sportOptions = [
+  { value: 'futsal', label: 'Futsal' },
+  { value: 'society', label: 'Society' },
+  { value: 'poliesportiva', label: 'Poliesportiva' },
+  { value: 'volei', label: 'Vôlei' },
+  { value: 'volei_areia', label: 'Vôlei de Areia' },
+  { value: 'basquete', label: 'Basquete' },
+  { value: 'handebol', label: 'Handebol' },
+  { value: 'beach_tennis', label: 'Beach Tennis' },
+  { value: 'tenis', label: 'Tênis' },
+  { value: 'suico', label: 'Suíço' },
+  { value: 'futvolei', label: 'Futvôlei' },
+]
+
+export const sportLabels = Object.fromEntries(sportOptions.map((sport) => [sport.value, sport.label]))

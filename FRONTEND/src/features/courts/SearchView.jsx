@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
-import { sportLabels } from '../../data/demoData'
+import { sportLabels, sportOptions } from '../../data/demoData'
 import { CourtCard } from './CourtCard'
 
 export function SearchView({ initialQuery, quadras, onOpenCourt }) {
@@ -9,8 +9,18 @@ export function SearchView({ initialQuery, quadras, onOpenCourt }) {
   const [precoMax, setPrecoMax] = useState(500)
 
   const modalidades = useMemo(() => {
-    const values = new Set(quadras.map((quadra) => quadra.modalidade).filter(Boolean))
-    return ['todos', ...values]
+    const values = new Set([
+      ...sportOptions.map((sport) => sport.value),
+      ...quadras.map((quadra) => quadra.modalidade).filter(Boolean),
+    ])
+    const sortedValues = Array.from(values).sort((first, second) => {
+      const firstLabel = sportLabels[first] || first
+      const secondLabel = sportLabels[second] || second
+
+      return firstLabel.localeCompare(secondLabel, 'pt-BR')
+    })
+
+    return ['todos', ...sortedValues]
   }, [quadras])
 
   const filtered = quadras.filter((quadra) => {

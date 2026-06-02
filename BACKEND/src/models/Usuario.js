@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(20),
       allowNull: true,
     },
+    foto_perfil_url: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     status: {
       type: DataTypes.ENUM('ativo', 'inativo'),
       allowNull: false,

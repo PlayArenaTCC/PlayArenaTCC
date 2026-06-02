@@ -1,5 +1,5 @@
 import { CalendarDays } from 'lucide-react'
-import { formatCurrency, formatDate, shortTime } from '../../utils/formatters'
+import { formatCurrency, formatDate, formatOperatingHours, shortTime } from '../../utils/formatters'
 
 export function OwnerReservationList({ reservas, onStatusReservation, compact = false }) {
   if (!reservas.length) {
@@ -20,6 +20,12 @@ export function OwnerReservationList({ reservas, onStatusReservation, compact = 
             <span className={`status-dot status-${reserva.status}`}>{reserva.status}</span>
             <h3>{reserva.quadra?.nome}</h3>
             <p>{reserva.usuario?.nome || 'Usuário'} - {formatDate(reserva.data_reserva)} - {shortTime(reserva.hora_inicio)}</p>
+            {!compact && (reserva.quadra?.horarios_funcionamento?.length > 0 || reserva.quadra?.amenities?.length > 0) && (
+              <div className="owner-card-meta">
+                {reserva.quadra?.horarios_funcionamento?.length > 0 && <span>{formatOperatingHours(reserva.quadra.horarios_funcionamento)}</span>}
+                {reserva.quadra?.amenities?.length > 0 && <span>{reserva.quadra.amenities.slice(0, 5).join(', ')}</span>}
+              </div>
+            )}
           </div>
           <strong>{formatCurrency(reserva.valor_total)}</strong>
           {!compact && (

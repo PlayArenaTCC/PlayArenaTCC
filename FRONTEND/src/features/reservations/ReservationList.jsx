@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CalendarDays, Clock, CreditCard, DollarSign, Info, MapPin, X } from 'lucide-react'
-import { formatCurrency, formatDate, shortTime } from '../../utils/formatters'
+import { formatCurrency, formatDate, formatOperatingHours, shortTime } from '../../utils/formatters'
 
 const paymentLabels = {
   pix: 'Pix',
@@ -25,10 +25,21 @@ function getCourtAddress(reserva) {
   return address.length ? address.join(', ') : 'Localidade não informada'
 }
 
+function getCourtAmenities(reserva) {
+  return reserva.quadra?.amenities || reserva.quadra?.comodidades || []
+}
+
+function getCourtOperatingHours(reserva) {
+  return reserva.quadra?.horarios_funcionamento || reserva.quadra?.funcionamento || []
+}
+
 function ReservationDetails({ reserva, onClose }) {
   if (!reserva) {
     return null
   }
+
+  const amenities = getCourtAmenities(reserva)
+  const operatingHours = getCourtOperatingHours(reserva)
 
   return (
     <div className="modal-backdrop">
@@ -71,6 +82,24 @@ function ReservationDetails({ reserva, onClose }) {
             <strong>{paymentLabels[reserva.forma_pagamento] || reserva.forma_pagamento || 'Não informado'}</strong>
           </span>
         </div>
+
+        {operatingHours.length > 0 && (
+          <div className="reservation-extra-block">
+            <small>Funcionamento da quadra</small>
+            <p>{formatOperatingHours(operatingHours)}</p>
+          </div>
+        )}
+
+        {amenities.length > 0 && (
+          <div className="reservation-extra-block">
+            <small>Comodidades</small>
+            <div className="reservation-chip-list">
+              {amenities.map((amenity) => (
+                <span key={amenity}>{amenity}</span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {reserva.observacoes && (
           <div className="reservation-notes">

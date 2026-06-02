@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { MapPin } from 'lucide-react'
 import { weekDays } from '../../data/demoData'
-import { formatCurrency } from '../../utils/formatters'
+import { formatCurrency, formatOperatingHours } from '../../utils/formatters'
 
 export function OwnerCourtCard({ quadra, onCreateSchedule }) {
   const [open, setOpen] = useState(false)
+  const amenities = quadra.amenities || []
+  const operatingHours = quadra.horarios_funcionamento || []
   const [schedule, setSchedule] = useState({
     dia_semana: 1,
     hora_inicio: '18:00',
@@ -26,6 +28,12 @@ export function OwnerCourtCard({ quadra, onCreateSchedule }) {
           <MapPin size={15} />
           {quadra.endereco}
         </p>
+        {(operatingHours.length > 0 || amenities.length > 0) && (
+          <div className="owner-card-meta">
+            {operatingHours.length > 0 && <span>{formatOperatingHours(operatingHours)}</span>}
+            {amenities.length > 0 && <span>{amenities.slice(0, 4).join(', ')}</span>}
+          </div>
+        )}
         <div className="court-card-footer">
           <strong>{formatCurrency(quadra.preco_hora)}<small>/h</small></strong>
           <button className="secondary-action" type="button" onClick={() => setOpen((value) => !value)}>

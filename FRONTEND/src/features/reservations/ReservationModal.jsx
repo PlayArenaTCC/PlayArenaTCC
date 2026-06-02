@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { defaultHorarios } from '../../data/demoData'
 import { fetchCourtSchedules } from '../../services/playarenaApi'
-import { formatCurrency, shortTime, todayISO } from '../../utils/formatters'
+import { formatCurrency, formatOperatingHours, shortTime, todayISO } from '../../utils/formatters'
 
 export function ReservationModal({ quadra, token, onClose, onConfirm }) {
   const [data, setData] = useState(todayISO())
@@ -45,6 +45,8 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
 
   const horario = horarios.find((item) => String(item.id) === String(horarioId)) || horarios[0]
   const valor = Number(horario?.valor || quadra.preco_hora)
+  const amenities = quadra.amenities || quadra.comodidades || []
+  const operatingHours = quadra.horarios_funcionamento || quadra.funcionamento || []
 
   async function submit(event) {
     event.preventDefault()
@@ -67,6 +69,23 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
         </button>
         <h2>Reservar Espaço</h2>
         <p>{quadra.nome}</p>
+
+        {(operatingHours.length > 0 || amenities.length > 0) && (
+          <div className="reservation-court-summary">
+            {operatingHours.length > 0 && (
+              <span>
+                <strong>Funcionamento</strong>
+                {formatOperatingHours(operatingHours)}
+              </span>
+            )}
+            {amenities.length > 0 && (
+              <span>
+                <strong>Comodidades</strong>
+                {amenities.slice(0, 6).join(', ')}
+              </span>
+            )}
+          </div>
+        )}
 
         <label className="field">
           <span>Data da reserva</span>

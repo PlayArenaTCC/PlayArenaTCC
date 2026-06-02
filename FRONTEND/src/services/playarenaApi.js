@@ -9,6 +9,27 @@ export async function login(credentials) {
   })
 }
 
+export async function requestPasswordReset(payload) {
+  return apiRequest('/auth/password/forgot', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function verifyPasswordResetCode(payload) {
+  return apiRequest('/auth/password/verify', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function resetPassword(payload) {
+  return apiRequest('/auth/password/reset', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
 export async function registerAccount(payload) {
   const path = payload.perfil === 'proprietario' ? '/auth/register/proprietario' : '/auth/register'
 
@@ -16,6 +37,37 @@ export async function registerAccount(payload) {
     method: 'POST',
     body: payload,
   })
+}
+
+export async function confirmRegistrationCode(payload) {
+  return apiRequest('/auth/register/confirm', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function resendRegistrationCode(payload) {
+  return apiRequest('/auth/register/resend', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function updateProfile(token, payload) {
+  const body = new FormData()
+  body.append('telefone', payload.telefone || '')
+
+  if (payload.foto_perfil) {
+    body.append('foto_perfil', payload.foto_perfil)
+  }
+
+  const response = await apiRequest('/auth/profile', {
+    method: 'PATCH',
+    token,
+    body,
+  })
+
+  return response.usuario
 }
 
 export async function fetchQuadras() {
@@ -92,19 +144,58 @@ export async function cancelReservation(token, reservaId) {
   })
 }
 
-export async function createCourt(token, form) {
-  const payload = {
-    ...form,
-    imagem_url: form.imagem_url || fallbackCourtImage,
-    preco_hora: Number(form.preco_hora || 0),
+function buildCourtPayloads(form) {
+  if (!Array.isArray(form.campos) || !form.campos.length) {
+    return [{
+      ...form,
+      imagem_url: form.imagem_url || fallbackCourtImage,
+      preco_hora: Number(form.preco_hora || 0),
+    }]
   }
-  const response = await apiRequest('/quadras', {
-    method: 'POST',
-    token,
-    body: payload,
-  })
 
-  return normalizeCourt(response.quadra)
+  const baseName = String(form.nome || '').trim()
+
+  return form.campos.map((campo, index) => {
+    const photos = Array.isArray(campo.fotos)
+      ? campo.fotos.map((foto) => String(foto || '').trim()).filter(Boolean)
+      : []
+    const campoName = String(campo.nome || `Campo ${index + 1}`).trim()
+    const nome = form.campos.length > 1 || (campoName && campoName !== 'Campo 1')
+      ? `${baseName} - ${campoName}`
+      : baseName
+
+    return {
+      nome,
+      descricao: form.descricao,
+      modalidade: form.modalidade,
+      endereco: form.endereco,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado || 'PR',
+      preco_hora: Number(campo.preco_hora || 0),
+      imagem_url: campo.imagem_url || photos[0] || fallbackCourtImage,
+      fotos: photos,
+      horarios_funcionamento: campo.horarios_funcionamento || [],
+      amenities: campo.amenities || [],
+    }
+  })
+}
+
+export async function createCourt(token, form) {
+  const payloads = buildCourtPayloads(form)
+  const quadras = []
+
+  for (const payload of payloads) {
+    const response = await apiRequest('/quadras', {
+      method: 'POST',
+      token,
+      body: payload,
+    })
+
+    quadras.push(normalizeCourt(response.quadra))
+  }
+
+  return quadras.length === 1 ? quadras[0] : quadras
 }
 
 export async function createSchedule(token, quadra, schedule) {

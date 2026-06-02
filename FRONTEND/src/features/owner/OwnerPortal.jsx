@@ -15,6 +15,7 @@ export function OwnerPortal({
   onCreateCourt,
   onCreateSchedule,
   onStatusReservation,
+  onUpdateProfile,
   loading,
 }) {
   const [showForm, setShowForm] = useState(false)
@@ -60,7 +61,7 @@ export function OwnerPortal({
   }
 
   if (activeView === 'perfil') {
-    return <OwnerProfile session={session} />
+    return <OwnerProfile session={session} loading={loading} onUpdateProfile={onUpdateProfile} />
   }
 
   return (

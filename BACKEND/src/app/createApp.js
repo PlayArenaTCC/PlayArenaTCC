@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const adminRoutes = require('../routes/admin');
 const authRoutes = require('../routes/auth');
@@ -30,6 +31,7 @@ function createApp() {
 
   app.use(cors(createCorsOptions()));
   app.use(express.json());
+  app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')));
 
   app.get('/', (_request, response) => {
     response.json({

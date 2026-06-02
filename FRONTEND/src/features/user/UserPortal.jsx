@@ -18,6 +18,8 @@ export function UserPortal({
   onOwnerSignup,
   onReserve,
   onCancelReservation,
+  onUpdateProfile,
+  loading,
   session,
 }) {
   if (activeView === 'buscar') {
@@ -47,7 +49,7 @@ export function UserPortal({
   }
 
   if (activeView === 'perfil') {
-    return <ProfileView session={session} />
+    return <ProfileView session={session} loading={loading} onUpdateProfile={onUpdateProfile} />
   }
 
   if (activeView === 'configuracoes') {

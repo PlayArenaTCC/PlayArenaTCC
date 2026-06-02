@@ -39,7 +39,12 @@ function App() {
           initialMode={authEntry.mode}
           loading={playArena.loading}
           onLogin={playArena.handleLogin}
+          onConfirmRegistration={playArena.handleConfirmRegistration}
           onRegister={playArena.handleRegister}
+          onResendRegistrationCode={playArena.handleResendRegistrationCode}
+          onRequestPasswordReset={playArena.handleRequestPasswordReset}
+          onResetPassword={playArena.handleResetPassword}
+          onVerifyPasswordResetCode={playArena.handleVerifyPasswordResetCode}
         />
         <Toast message={playArena.toast} onClose={() => playArena.setToast('')} />
       </>
@@ -72,6 +77,8 @@ function App() {
             onOwnerSignup={handleOwnerSignup}
             onReserve={playArena.setReservationCourt}
             onCancelReservation={playArena.handleCancelReservation}
+            onUpdateProfile={playArena.handleUpdateProfile}
+            loading={playArena.loading}
             session={playArena.session}
           />
         )}
@@ -85,6 +92,7 @@ function App() {
             onCreateCourt={playArena.handleCreateCourt}
             onCreateSchedule={playArena.handleCreateSchedule}
             onStatusReservation={playArena.handleStatusReservation}
+            onUpdateProfile={playArena.handleUpdateProfile}
             loading={playArena.loading}
           />
         )}

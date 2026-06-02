@@ -21,6 +21,18 @@ button:disabled {
   opacity: 0.65;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .auth-page {
   display: flex;
   flex-direction: column;
@@ -503,7 +515,6 @@ button:disabled {
 .court-card h3,
 .list-row h3,
 .plain-panel h2,
-.profile-hero h1,
 .empty-state h2 {
   margin: 0;
   font-size: 17px;
@@ -514,7 +525,6 @@ button:disabled {
 .court-card p,
 .list-row p,
 .empty-state p,
-.profile-hero p,
 .price-panel small,
 .filter-note {
   margin: 0;
@@ -557,7 +567,6 @@ button:disabled {
 
 .filters-panel,
 .plain-panel,
-.profile-hero,
 .settings-list,
 .price-panel,
 .management-form,
@@ -828,6 +837,54 @@ button:disabled {
   background: #f4f8f6;
   border: 1px solid #e3ebe6;
   border-radius: 8px;
+}
+
+.reservation-extra-block,
+.reservation-court-summary {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.reservation-extra-block p,
+.reservation-court-summary span {
+  margin: 0;
+  color: #17241c;
+  line-height: 1.45;
+}
+
+.reservation-court-summary span {
+  display: grid;
+  gap: 3px;
+}
+
+.reservation-extra-block small,
+.reservation-court-summary strong {
+  color: #65756b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.reservation-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reservation-chip-list span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: #17643f;
+  background: #e7f5ed;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .reservation-notes p {
@@ -1188,24 +1245,83 @@ button:disabled {
   margin: 0 auto;
 }
 
-.profile-hero {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding: 28px;
-  text-align: center;
+.avatar-dot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
-.profile-hero span {
-  width: 70px;
-  height: 70px;
+.profile-form {
+  display: grid;
+  gap: 18px;
+}
+
+.profile-photo-card {
+  justify-items: center;
+  gap: 12px;
+}
+
+.profile-card-title,
+.profile-info-card h2 {
+  justify-self: start;
+  margin: 0;
+  color: #17241c;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.profile-photo-preview {
+  width: 86px;
+  height: 86px;
   display: grid;
   place-items: center;
+  overflow: hidden;
   color: #1f8f59;
-  background: #e6f5ed;
+  background: #d9f8e6;
   border-radius: 50%;
-  font-size: 28px;
-  font-weight: 900;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-photo-button {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.profile-feedback {
+  color: #a23232;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.profile-info-field > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-info-field small {
+  color: #65756b;
+  font-size: 12px;
+}
+
+.profile-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.profile-form-actions .primary-action {
+  min-width: 150px;
 }
 
 .settings-list {
@@ -1240,8 +1356,155 @@ button:disabled {
   padding: 18px;
 }
 
+.court-registration-form {
+  align-items: start;
+}
+
 .wide-field {
   grid-column: 1 / -1;
+}
+
+.form-section,
+.subcourt-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.subcourt-card {
+  background: #f9fbfa;
+}
+
+.form-section-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.form-section-header div {
+  display: grid;
+  gap: 4px;
+}
+
+.form-section-header strong {
+  color: #102318;
+  font-size: 15px;
+}
+
+.form-section-header small,
+.field-help {
+  color: #65756b;
+  line-height: 1.35;
+}
+
+.form-section-header.compact {
+  margin-bottom: 4px;
+}
+
+.subcourt-grid,
+.time-range-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.form-block {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.photo-url-list,
+.amenity-choice-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.photo-url-field {
+  position: relative;
+}
+
+.photo-url-field input {
+  padding-right: 86px;
+}
+
+.remove-inline {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.day-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.available-times-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.choice-pill {
+  min-height: 44px;
+  color: #17241c;
+  background: #ffffff;
+  border: 1px solid #d9e2dd;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.choice-pill.is-selected {
+  color: #ffffff;
+  background: #1f8f59;
+  border-color: #1f8f59;
+}
+
+.amenity-choice-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.checkbox-pill {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #17241c;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.checkbox-pill input {
+  width: 16px;
+  height: 16px;
+  accent-color: #1f8f59;
+}
+
+.owner-card-meta {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  color: #65756b;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .slim-action {
@@ -1521,8 +1784,21 @@ button:disabled {
   }
 
   .management-form,
+  .form-section,
+  .subcourt-card,
+  .subcourt-grid,
+  .time-range-grid,
+  .amenity-choice-grid,
   .schedule-form {
     grid-template-columns: 1fr;
+  }
+
+  .form-section-header {
+    flex-direction: column;
+  }
+
+  .day-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .reservation-detail-lines span {
@@ -2161,6 +2437,46 @@ button:disabled {
 .sport-poliesportiva {
   color: #4338ca;
   background: #e0e7ff;
+}
+
+.sport-volei {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.sport-volei_areia {
+  color: #a16207;
+  background: #fef9c3;
+}
+
+.sport-basquete {
+  color: #c2410c;
+  background: #ffedd5;
+}
+
+.sport-handebol {
+  color: #be123c;
+  background: #ffe4e6;
+}
+
+.sport-beach_tennis {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.sport-tenis {
+  color: #4d7c0f;
+  background: #ecfccb;
+}
+
+.sport-suico {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+
+.sport-futvolei {
+  color: #6d28d9;
+  background: #ede9fe;
 }
 
 .rating-badge {
@@ -3314,7 +3630,7 @@ button:disabled {
 }
 
 .auth-panel .input-with-icon:focus-within {
-  border-color: rgba(185, 255, 192, 0.72);
+  border-color: rgba(67, 232, 118, 0.72);
   box-shadow:
     0 0 0 1px rgba(67, 232, 118, 0.15),
     0 0 26px rgba(67, 232, 118, 0.15);
@@ -3335,6 +3651,16 @@ button:disabled {
   box-shadow: none;
 }
 
+.auth-panel .input-with-icon input:-webkit-autofill,
+.auth-panel .input-with-icon input:-webkit-autofill:hover,
+.auth-panel .input-with-icon input:-webkit-autofill:focus {
+  border: 0;
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ffffff;
+  box-shadow: 0 0 0 1000px rgba(14, 25, 18, 0.96) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 .auth-panel .input-with-icon input::placeholder {
   color: rgba(235, 255, 239, 0.44);
 }
@@ -3353,6 +3679,58 @@ button:disabled {
 
 .password-toggle:hover {
   background: rgba(67, 232, 118, 0.15);
+}
+
+.auth-verification-card {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 16px;
+  color: rgba(240, 255, 244, 0.84);
+  border: 1px solid rgba(143, 255, 168, 0.14);
+  border-radius: 8px;
+  background: rgba(67, 232, 118, 0.075);
+}
+
+.auth-verification-card strong {
+  color: #f6fff8;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.auth-verification-card span {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.verification-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #041008;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #d9ffd8, #43e876);
+  box-shadow: 0 0 24px rgba(67, 232, 118, 0.18);
+}
+
+.auth-panel .resend-code-button {
+  width: 100%;
+  min-height: 42px;
+  color: #d9ffdf;
+  border: 1px solid rgba(143, 255, 168, 0.16);
+  background: rgba(67, 232, 118, 0.08);
+}
+
+.auth-panel .resend-code-button:hover {
+  color: #ffffff;
+  background: rgba(67, 232, 118, 0.14);
+}
+
+.auth-panel .resend-code-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .auth-links {
@@ -3602,7 +3980,8 @@ button:disabled {
 .app-shell.dark-theme .filters-panel h2,
 .app-shell.dark-theme .reservation-modal h2,
 .app-shell.dark-theme .plain-panel h2,
-.app-shell.dark-theme .profile-hero h1,
+.app-shell.dark-theme .profile-card-title,
+.app-shell.dark-theme .profile-info-card h2,
 .app-shell.dark-theme .empty-state h2 {
   color: var(--app-text);
 }
@@ -3612,12 +3991,12 @@ button:disabled {
 .app-shell.dark-theme .court-card p,
 .app-shell.dark-theme .list-row p,
 .app-shell.dark-theme .empty-state p,
-.app-shell.dark-theme .profile-hero p,
 .app-shell.dark-theme .price-panel small,
 .app-shell.dark-theme .filter-note,
 .app-shell.dark-theme .detail-content > p,
 .app-shell.dark-theme .detail-meta,
 .app-shell.dark-theme .toggle-row small,
+.app-shell.dark-theme .profile-info-field small,
 .app-shell.dark-theme .court-card-footer small,
 .app-shell.dark-theme .court-card-footer > span {
   color: var(--app-muted);
@@ -3632,10 +4011,13 @@ button:disabled {
 .app-shell.dark-theme .search-bar,
 .app-shell.dark-theme .filters-panel,
 .app-shell.dark-theme .plain-panel,
-.app-shell.dark-theme .profile-hero,
 .app-shell.dark-theme .settings-list,
 .app-shell.dark-theme .price-panel,
 .app-shell.dark-theme .management-form,
+.app-shell.dark-theme .form-section,
+.app-shell.dark-theme .subcourt-card,
+.app-shell.dark-theme .form-block,
+.app-shell.dark-theme .owner-card-meta,
 .app-shell.dark-theme .empty-state,
 .app-shell.dark-theme .court-card,
 .app-shell.dark-theme .metric,
@@ -3786,6 +4168,9 @@ button:disabled {
 
 .app-shell.dark-theme .field span,
 .app-shell.dark-theme .price-panel > span,
+.app-shell.dark-theme .form-section-header small,
+.app-shell.dark-theme .field-help,
+.app-shell.dark-theme .owner-card-meta,
 .app-shell.dark-theme .metric small {
   color: var(--app-muted);
 }
@@ -3795,10 +4180,22 @@ button:disabled {
 .app-shell.dark-theme .field textarea,
 .app-shell.dark-theme .schedule-form select,
 .app-shell.dark-theme .schedule-form input,
+.app-shell.dark-theme .choice-pill,
 .app-shell.dark-theme .search-bar input {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.055);
   border: 1px solid var(--app-border);
+}
+
+.app-shell.dark-theme .form-section-header strong,
+.app-shell.dark-theme .checkbox-pill {
+  color: var(--app-text);
+}
+
+.app-shell.dark-theme .choice-pill.is-selected {
+  color: #041008;
+  background: linear-gradient(90deg, #1f8f59, #43e876 58%, #b9ff65);
+  border-color: var(--app-border-strong);
 }
 
 .app-shell.dark-theme .field select,
@@ -3868,6 +4265,16 @@ button:disabled {
   box-shadow:
     0 0 0 3px rgba(67, 232, 118, 0.10),
     0 0 24px var(--app-neon);
+}
+
+.app-shell.dark-theme .profile-photo-preview {
+  color: #70f28d;
+  background: rgba(67, 232, 118, 0.12);
+  border: 1px solid var(--app-border);
+}
+
+.app-shell.dark-theme .profile-feedback {
+  color: #ffb8b8;
 }
 
 .app-shell.dark-theme .primary-action,
@@ -3956,6 +4363,8 @@ button:disabled {
 .app-shell.dark-theme .filter-note,
 .app-shell.dark-theme .receipt-lines,
 .app-shell.dark-theme .reservation-detail-lines span,
+.app-shell.dark-theme .reservation-extra-block,
+.app-shell.dark-theme .reservation-court-summary,
 .app-shell.dark-theme .reservation-notes {
   background: rgba(255, 255, 255, 0.045);
   border: 1px solid var(--app-border);
@@ -3971,8 +4380,21 @@ button:disabled {
 }
 
 .app-shell.dark-theme .reservation-detail-lines strong,
+.app-shell.dark-theme .reservation-extra-block p,
+.app-shell.dark-theme .reservation-court-summary span,
 .app-shell.dark-theme .reservation-notes p {
   color: var(--app-text);
+}
+
+.app-shell.dark-theme .reservation-extra-block small,
+.app-shell.dark-theme .reservation-court-summary strong {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .reservation-chip-list span {
+  color: #caffd1;
+  background: rgba(67, 232, 118, 0.10);
+  border: 1px solid var(--app-border);
 }
 
 .app-shell.dark-theme .detail-topbar {

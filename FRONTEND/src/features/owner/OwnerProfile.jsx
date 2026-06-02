@@ -1,7 +1,7 @@
 import { BadgeCheck } from 'lucide-react'
 import { ProfileView } from '../profile/ProfileView'
 
-export function OwnerProfile({ session }) {
+export function OwnerProfile({ session, loading, onUpdateProfile }) {
   const profile = session.usuario || {}
 
   return (
@@ -16,7 +16,7 @@ export function OwnerProfile({ session }) {
         <BadgeCheck size={20} />
         Perfil {profile.status_aprovacao || 'pendente'}
       </div>
-      <ProfileView session={session} />
+      <ProfileView session={session} loading={loading} onUpdateProfile={onUpdateProfile} />
     </section>
   )
 }

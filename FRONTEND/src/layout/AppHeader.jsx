@@ -5,6 +5,7 @@ import { Logo } from '../components/Logo'
 export function AppHeader({ activeView, darkTheme, navItems, session, onNavigate, onLogout, onToggleTheme }) {
   const [open, setOpen] = useState(false)
   const accountName = session.usuario?.nome || session.usuario?.nome_responsavel || session.usuario?.nome_empresa || 'Conta'
+  const avatarUrl = session.usuario?.foto_perfil_url
 
   function navigate(view, { scrollTop = false } = {}) {
     onNavigate(view)
@@ -60,7 +61,7 @@ export function AppHeader({ activeView, darkTheme, navItems, session, onNavigate
           title="Meu perfil"
         >
           <span className="avatar-dot" aria-hidden="true">
-            <User size={16} />
+            {avatarUrl ? <img src={avatarUrl} alt="" /> : <User size={16} />}
           </span>
           <span className="account-name">{accountName}</span>
         </button>

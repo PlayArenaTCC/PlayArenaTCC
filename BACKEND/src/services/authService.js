@@ -1,14 +1,79 @@
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
-const { Administrador, Proprietario, Usuario } = require('../models');
+const {
+  Administrador,
+  CadastroPendente,
+  Proprietario,
+  RecuperacaoSenha,
+  Usuario,
+  sequelize,
+} = require('../models');
 const { sanitizeAccount, signToken } = require('../middleware/auth');
+const {
+  generateEmailVerificationCode,
+  sendVerificationEmail,
+} = require('./emailService');
 const { HttpError } = require('../utils/http');
 
 const SALT_ROUNDS = 10;
+const DEFAULT_CODE_EXPIRATION_MINUTES = 10;
+const DEFAULT_MAX_VERIFICATION_ATTEMPTS = 5;
+const DEFAULT_RESEND_COOLDOWN_SECONDS = 60;
+const DEFAULT_MAX_RESENDS = 3;
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
+}
+
+function getEmailError(email) {
+  const value = String(email || '').trim();
+
+  if (!value) {
+    return 'Informe o e-mail.';
+  }
+
+  if (/\s/.test(value)) {
+    return 'O e-mail nao pode conter espacos.';
+  }
+
+  if (!value.includes('@')) {
+    return 'O e-mail precisa conter @. Exemplo: nome@email.com.';
+  }
+
+  const [localPart, domainPart, extraPart] = value.split('@');
+
+  if (extraPart !== undefined) {
+    return 'O e-mail deve conter apenas um @.';
+  }
+
+  if (!localPart) {
+    return 'Digite a parte antes do @ no e-mail.';
+  }
+
+  if (!domainPart) {
+    return 'Digite o dominio depois do @. Exemplo: nome@email.com.';
+  }
+
+  if (!domainPart.includes('.')) {
+    return 'O dominio do e-mail precisa ter ponto. Exemplo: nome@email.com.';
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+    return 'Digite um e-mail valido. Exemplo: nome@email.com.';
+  }
+
+  return '';
+}
+
+function ensureValidEmail(email) {
+  const error = getEmailError(email);
+
+  if (error) {
+    throw new HttpError(400, error);
+  }
+
+  return normalizeEmail(email);
 }
 
 function validatePassword(senha) {
@@ -21,12 +86,52 @@ function validatePassword(senha) {
   );
 }
 
+function getCpfError(value) {
+  const digits = onlyDigits(value);
+
+  if (!digits) {
+    return 'Informe o CPF.';
+  }
+
+  if (digits.length !== 11) {
+    return 'CPF deve ter 11 digitos.';
+  }
+
+  if (/^(\d)\1+$/.test(digits)) {
+    return 'CPF invalido: todos os digitos sao iguais.';
+  }
+
+  if (!isValidCpf(digits)) {
+    return 'CPF invalido. Confira os numeros digitados.';
+  }
+
+  return '';
+}
+
 function validatePasswordConfirmation(senha, confirmarSenha) {
   return senha === confirmarSenha;
 }
 
 function onlyDigits(value) {
   return String(value || '').replace(/\D/g, '');
+}
+
+function normalizePhone(telefone, { required = false } = {}) {
+  const digits = onlyDigits(telefone);
+
+  if (!digits) {
+    if (required) {
+      throw new HttpError(400, 'Informe um telefone com DDD.');
+    }
+
+    return null;
+  }
+
+  if (![10, 11].includes(digits.length)) {
+    throw new HttpError(400, 'Telefone deve ter DDD e 8 ou 9 digitos.');
+  }
+
+  return `${digits.slice(0, 2)} ${digits.slice(2)}`;
 }
 
 function isValidCpf(value) {
@@ -52,8 +157,31 @@ function calculateCpfCheckDigit(baseDigits) {
   return remainder === 10 ? 0 : remainder;
 }
 
-function passwordRequirementMessage() {
-  return 'A senha deve ter ao menos 8 caracteres, uma letra maiuscula, um numero e um caractere especial.';
+function passwordRequirementMessage(senha) {
+  const value = String(senha || '');
+  const missingRequirements = [];
+
+  if (value.length < 8) {
+    missingRequirements.push('8 caracteres');
+  }
+
+  if (!/[A-Z]/.test(value)) {
+    missingRequirements.push('uma letra maiuscula');
+  }
+
+  if (!/\d/.test(value)) {
+    missingRequirements.push('um numero');
+  }
+
+  if (!/[^\w\s]|_/.test(value)) {
+    missingRequirements.push('um caractere especial');
+  }
+
+  if (!missingRequirements.length) {
+    return '';
+  }
+
+  return `A senha precisa ter ${missingRequirements.join(', ')}.`;
 }
 
 function pickLoginModels(perfil) {
@@ -76,26 +204,36 @@ function pickLoginModels(perfil) {
   ];
 }
 
-async function registerUser({ nome, cpf, email, senha, confirmar_senha, telefone }) {
+async function buildUserRegistration({ nome, cpf, email, senha, confirmar_senha, telefone }) {
   const cpfNormalizado = onlyDigits(cpf);
+  const normalizedEmail = ensureValidEmail(email);
 
-  if (!nome || !email) {
-    throw new HttpError(400, 'Informe nome, CPF, e-mail e senha.');
+  if (!String(nome || '').trim()) {
+    throw new HttpError(400, 'Informe o nome completo.');
   }
 
-  if (!isValidCpf(cpfNormalizado)) {
-    throw new HttpError(400, 'CPF invalido.');
+  const cpfError = getCpfError(cpf);
+
+  if (cpfError) {
+    throw new HttpError(400, cpfError);
+  }
+
+  if (!senha) {
+    throw new HttpError(400, 'Informe uma senha.');
   }
 
   if (!validatePassword(senha)) {
-    throw new HttpError(400, passwordRequirementMessage());
+    throw new HttpError(400, passwordRequirementMessage(senha));
+  }
+
+  if (!confirmar_senha) {
+    throw new HttpError(400, 'Confirme a senha.');
   }
 
   if (!validatePasswordConfirmation(senha, confirmar_senha)) {
     throw new HttpError(400, 'As senhas nao conferem.');
   }
 
-  const normalizedEmail = normalizeEmail(email);
   const existingUsuario = await Usuario.findOne({
     where: {
       [Op.or]: [
@@ -105,33 +243,45 @@ async function registerUser({ nome, cpf, email, senha, confirmar_senha, telefone
     },
   });
 
-  if (existingUsuario) {
-    throw new HttpError(409, 'Este e-mail ou CPF ja esta cadastrado.');
+  if (existingUsuario?.email === normalizedEmail) {
+    throw new HttpError(409, 'Este e-mail ja esta cadastrado como usuario.');
   }
 
-  try {
-    const usuario = await Usuario.create({
+  if (existingUsuario?.cpf === cpfNormalizado) {
+    throw new HttpError(409, 'Este CPF ja esta cadastrado como usuario.');
+  }
+
+  const emailInOwner = await Proprietario.findOne({ where: { email: normalizedEmail } });
+
+  if (emailInOwner) {
+    throw new HttpError(409, 'Este e-mail ja esta cadastrado como proprietario. Use outro e-mail ou faca login.');
+  }
+
+  const telefoneNormalizado = normalizePhone(telefone);
+
+  return {
+    emailVerificacao: normalizedEmail,
+    telefone: telefoneNormalizado,
+    payload: {
       nome: String(nome).trim(),
       cpf: cpfNormalizado,
       email: normalizedEmail,
       senha_hash: await bcrypt.hash(senha, SALT_ROUNDS),
-      telefone: telefone || null,
-    });
-
-    return {
-      token: signToken(usuario, 'usuario'),
-      usuario: sanitizeAccount(usuario, 'usuario'),
-    };
-  } catch (error) {
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      throw new HttpError(409, 'Este e-mail ou CPF ja esta cadastrado.');
-    }
-
-    throw error;
-  }
+      telefone: telefoneNormalizado,
+    },
+  };
 }
 
-async function registerOwner({
+async function registerUser(registrationData) {
+  const registration = await buildUserRegistration(registrationData);
+
+  return createPendingRegistration({
+    perfil: 'usuario',
+    ...registration,
+  });
+}
+
+async function buildOwnerRegistration({
   nome_responsavel,
   nome_empresa,
   cpf_cnpj,
@@ -141,24 +291,34 @@ async function registerOwner({
   telefone,
 }) {
   const cpfNormalizado = onlyDigits(cpf_cnpj);
+  const normalizedEmail = ensureValidEmail(email);
 
-  if (!isValidCpf(cpfNormalizado)) {
-    throw new HttpError(400, 'CPF invalido.');
+  if (!String(nome_responsavel || '').trim()) {
+    throw new HttpError(400, 'Informe o nome do responsavel.');
+  }
+
+  const cpfError = getCpfError(cpf_cnpj);
+
+  if (cpfError) {
+    throw new HttpError(400, cpfError);
+  }
+
+  if (!senha) {
+    throw new HttpError(400, 'Informe uma senha.');
   }
 
   if (!validatePassword(senha)) {
-    throw new HttpError(400, passwordRequirementMessage());
+    throw new HttpError(400, passwordRequirementMessage(senha));
   }
 
-  if (!nome_responsavel || !email) {
-    throw new HttpError(400, 'Informe responsavel, CPF, e-mail e senha.');
+  if (!confirmar_senha) {
+    throw new HttpError(400, 'Confirme a senha.');
   }
 
   if (!validatePasswordConfirmation(senha, confirmar_senha)) {
     throw new HttpError(400, 'As senhas nao conferem.');
   }
 
-  const normalizedEmail = normalizeEmail(email);
   const existingProprietario = await Proprietario.findOne({
     where: {
       [Op.or]: [
@@ -168,38 +328,550 @@ async function registerOwner({
     },
   });
 
-  if (existingProprietario) {
-    throw new HttpError(409, 'E-mail ou CPF ja cadastrado.');
+  if (existingProprietario?.email === normalizedEmail) {
+    throw new HttpError(409, 'Este e-mail ja esta cadastrado como proprietario.');
   }
 
-  try {
-    const proprietario = await Proprietario.create({
+  if (existingProprietario?.cpf_cnpj === cpfNormalizado) {
+    throw new HttpError(409, 'Este CPF ja esta cadastrado como proprietario.');
+  }
+
+  const emailInUser = await Usuario.findOne({ where: { email: normalizedEmail } });
+
+  if (emailInUser) {
+    throw new HttpError(409, 'Este e-mail ja esta cadastrado como usuario. Use outro e-mail ou faca login.');
+  }
+
+  const telefoneNormalizado = normalizePhone(telefone);
+
+  return {
+    emailVerificacao: normalizedEmail,
+    telefone: telefoneNormalizado,
+    payload: {
       nome_responsavel: String(nome_responsavel).trim(),
       nome_empresa: nome_empresa || null,
       cpf_cnpj: cpfNormalizado,
       email: normalizedEmail,
       senha_hash: await bcrypt.hash(senha, SALT_ROUNDS),
-      telefone: telefone || null,
+      telefone: telefoneNormalizado,
+    },
+  };
+}
+
+async function registerOwner(registrationData) {
+  const registration = await buildOwnerRegistration(registrationData);
+
+  return createPendingRegistration({
+    perfil: 'proprietario',
+    ...registration,
+  });
+}
+
+function getCodeExpirationMinutes() {
+  const minutes = Number(process.env.EMAIL_CODE_EXPIRATION_MINUTES || DEFAULT_CODE_EXPIRATION_MINUTES);
+
+  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 60) {
+    return DEFAULT_CODE_EXPIRATION_MINUTES;
+  }
+
+  return minutes;
+}
+
+function getMaxVerificationAttempts() {
+  const attempts = Number(process.env.EMAIL_MAX_VERIFICATION_ATTEMPTS || DEFAULT_MAX_VERIFICATION_ATTEMPTS);
+
+  if (!Number.isInteger(attempts) || attempts < 1 || attempts > 10) {
+    return DEFAULT_MAX_VERIFICATION_ATTEMPTS;
+  }
+
+  return attempts;
+}
+
+function getResendCooldownSeconds() {
+  const seconds = Number(process.env.EMAIL_RESEND_COOLDOWN_SECONDS || DEFAULT_RESEND_COOLDOWN_SECONDS);
+
+  if (!Number.isInteger(seconds) || seconds < 0 || seconds > 600) {
+    return DEFAULT_RESEND_COOLDOWN_SECONDS;
+  }
+
+  return seconds;
+}
+
+function getMaxResends() {
+  const resends = Number(process.env.EMAIL_MAX_RESENDS || DEFAULT_MAX_RESENDS);
+
+  if (!Number.isInteger(resends) || resends < 0 || resends > 10) {
+    return DEFAULT_MAX_RESENDS;
+  }
+
+  return resends;
+}
+
+function maskEmail(email) {
+  const [name, domain] = String(email || '').split('@');
+
+  if (!name || !domain) {
+    return email;
+  }
+
+  const visible = name.slice(0, 2);
+  return `${visible}${'*'.repeat(Math.max(name.length - 2, 3))}@${domain}`;
+}
+
+function buildPendingRegistrationResponse(cadastroPendente, emailProvider = 'local') {
+  const expiresInSeconds = Math.max(
+    0,
+    Math.ceil((new Date(cadastroPendente.expira_em).getTime() - Date.now()) / 1000),
+  );
+  const isLocalEmail = emailProvider === 'local';
+
+  return {
+    verification_id: cadastroPendente.id,
+    email: maskEmail(cadastroPendente.email_verificacao),
+    email_provider: emailProvider,
+    expira_em: cadastroPendente.expira_em,
+    expires_in_seconds: expiresInSeconds,
+    message: isLocalEmail
+      ? 'Codigo gerado em modo teste. Veja o terminal do backend.'
+      : 'Codigo de verificacao enviado por e-mail.',
+  };
+}
+
+function buildEmailDeliveryError(error) {
+  const message = String(error?.message || '');
+
+  if (message.toLowerCase().includes('domain')) {
+    return 'Nao foi possivel enviar o e-mail. O remetente de teste onboarding@resend.dev so envia para o e-mail da sua conta Resend. Para enviar para outros e-mails, verifique um dominio no Resend e use RESEND_FROM_EMAIL=PlayArena <no-reply@seudominio.com>.';
+  }
+
+  if (
+    message.toLowerCase().includes('gmail')
+    || message.toLowerCase().includes('invalid login')
+    || message.toLowerCase().includes('application-specific password')
+    || message.includes('535')
+  ) {
+    return 'Nao foi possivel enviar o e-mail pelo Gmail. Verifique se EMAIL_PROVIDER=gmail, se GMAIL_USER esta correto e se GMAIL_APP_PASSWORD e uma senha de app de 16 caracteres gerada com a verificacao em duas etapas ativada.';
+  }
+
+  return `Nao foi possivel enviar o e-mail de verificacao. ${message}`;
+}
+
+async function cleanupExpiredPendingRegistrations() {
+  await CadastroPendente.destroy({
+    where: {
+      expira_em: {
+        [Op.lt]: new Date(),
+      },
+    },
+  });
+}
+
+async function createPendingRegistration({ perfil, payload, emailVerificacao, telefone }) {
+  await cleanupExpiredPendingRegistrations();
+
+  const expirationMinutes = getCodeExpirationMinutes();
+  const expiraEm = new Date(Date.now() + expirationMinutes * 60 * 1000);
+  const now = new Date();
+
+  await CadastroPendente.destroy({
+    where: {
+      perfil,
+      email_verificacao: emailVerificacao,
+    },
+  });
+
+  const code = generateEmailVerificationCode();
+  const cadastroPendente = await CadastroPendente.create({
+    perfil,
+    payload,
+    email_verificacao: emailVerificacao,
+    telefone,
+    telefone_e164: null,
+    codigo_hash: await bcrypt.hash(code, SALT_ROUNDS),
+    expira_em: expiraEm,
+    ultimo_envio_em: now,
+  });
+
+  try {
+    const emailResult = await sendVerificationEmail({
+      to: emailVerificacao,
+      code,
+      name: payload.nome || payload.nome_responsavel,
     });
 
+    await cadastroPendente.update({
+      email_provider: emailResult.provider,
+      provider_reference: emailResult.messageId,
+    });
+
+    return buildPendingRegistrationResponse(cadastroPendente, emailResult.provider);
+  } catch (error) {
+    await cadastroPendente.destroy().catch(() => {});
+    throw new HttpError(502, buildEmailDeliveryError(error));
+  }
+}
+
+async function resendRegistrationCode({ verification_id }) {
+  const cadastroPendente = await CadastroPendente.findByPk(verification_id);
+
+  if (!cadastroPendente) {
+    throw new HttpError(404, 'Cadastro pendente nao encontrado. Refaca o cadastro para receber um novo e-mail.');
+  }
+
+  if (cadastroPendente.expira_em < new Date()) {
+    await cadastroPendente.destroy();
+    throw new HttpError(410, 'Codigo expirado. Refaca o cadastro para receber um novo e-mail.');
+  }
+
+  const maxResends = getMaxResends();
+
+  if (cadastroPendente.reenvios >= maxResends) {
+    await cadastroPendente.destroy();
+    throw new HttpError(429, 'Limite de reenvios atingido. Refaca o cadastro para receber outro codigo por e-mail.');
+  }
+
+  const cooldownSeconds = getResendCooldownSeconds();
+  const lastSentAt = new Date(cadastroPendente.ultimo_envio_em).getTime();
+  const waitSeconds = Math.ceil((lastSentAt + cooldownSeconds * 1000 - Date.now()) / 1000);
+
+  if (cooldownSeconds > 0 && waitSeconds > 0) {
+    throw new HttpError(429, `Aguarde ${waitSeconds} segundos para reenviar o codigo.`);
+  }
+
+  const expirationMinutes = getCodeExpirationMinutes();
+  const expiraEm = new Date(Date.now() + expirationMinutes * 60 * 1000);
+  const code = generateEmailVerificationCode();
+
+  try {
+    const emailResult = await sendVerificationEmail({
+      to: cadastroPendente.email_verificacao,
+      code,
+      name: cadastroPendente.payload?.nome || cadastroPendente.payload?.nome_responsavel,
+    });
+
+    await cadastroPendente.update({
+      codigo_hash: await bcrypt.hash(code, SALT_ROUNDS),
+      email_provider: emailResult.provider,
+      provider_reference: emailResult.messageId,
+      tentativas: 0,
+      reenvios: cadastroPendente.reenvios + 1,
+      expira_em: expiraEm,
+      ultimo_envio_em: new Date(),
+    });
+
+    return buildPendingRegistrationResponse(cadastroPendente, emailResult.provider);
+  } catch (error) {
+    throw new HttpError(502, buildEmailDeliveryError(error));
+  }
+}
+
+function buildPasswordResetResponse(recuperacaoSenha, emailProvider = 'local') {
+  const expiresInSeconds = Math.max(
+    0,
+    Math.ceil((new Date(recuperacaoSenha.expira_em).getTime() - Date.now()) / 1000),
+  );
+
+  return {
+    reset_id: recuperacaoSenha.id,
+    email: maskEmail(recuperacaoSenha.email),
+    email_provider: emailProvider,
+    expira_em: recuperacaoSenha.expira_em,
+    expires_in_seconds: expiresInSeconds,
+    message: emailProvider === 'local'
+      ? 'Codigo de recuperacao gerado em modo teste. Veja o terminal do backend.'
+      : 'Codigo de recuperacao enviado por e-mail.',
+  };
+}
+
+async function cleanupExpiredPasswordRecoveries() {
+  await RecuperacaoSenha.destroy({
+    where: {
+      expira_em: {
+        [Op.lt]: new Date(),
+      },
+    },
+  });
+}
+
+async function findPasswordResetAccount(email) {
+  const usuario = await Usuario.findOne({ where: { email } });
+
+  if (usuario) {
     return {
-      token: signToken(proprietario, 'proprietario'),
-      usuario: sanitizeAccount(proprietario, 'proprietario'),
+      account: usuario,
+      displayName: usuario.nome,
+      perfil: 'usuario',
     };
+  }
+
+  const proprietario = await Proprietario.findOne({ where: { email } });
+
+  if (proprietario) {
+    return {
+      account: proprietario,
+      displayName: proprietario.nome_responsavel || proprietario.nome_empresa,
+      perfil: 'proprietario',
+    };
+  }
+
+  return null;
+}
+
+async function requestPasswordReset({ email }) {
+  const normalizedEmail = ensureValidEmail(email);
+  const found = await findPasswordResetAccount(normalizedEmail);
+
+  if (!found) {
+    throw new HttpError(404, 'Nenhuma conta foi encontrada com este e-mail.');
+  }
+
+  if (found.perfil === 'usuario' && found.account.status !== 'ativo') {
+    throw new HttpError(403, 'Usuario inativo. Nao e possivel recuperar a senha desta conta.');
+  }
+
+  if (found.perfil === 'proprietario' && found.account.ativo === false) {
+    throw new HttpError(403, 'Conta inativa. Nao e possivel recuperar a senha desta conta.');
+  }
+
+  await cleanupExpiredPasswordRecoveries();
+  await RecuperacaoSenha.destroy({ where: { email: normalizedEmail } });
+
+  const code = generateEmailVerificationCode();
+  const expirationMinutes = getCodeExpirationMinutes();
+  const expiraEm = new Date(Date.now() + expirationMinutes * 60 * 1000);
+  const recuperacaoSenha = await RecuperacaoSenha.create({
+    perfil: found.perfil,
+    conta_id: found.account.id,
+    email: normalizedEmail,
+    codigo_hash: await bcrypt.hash(code, SALT_ROUNDS),
+    expira_em: expiraEm,
+    ultimo_envio_em: new Date(),
+  });
+
+  try {
+    const emailResult = await sendVerificationEmail({
+      to: normalizedEmail,
+      code,
+      name: found.displayName,
+    });
+
+    return buildPasswordResetResponse(recuperacaoSenha, emailResult.provider);
+  } catch (error) {
+    await recuperacaoSenha.destroy().catch(() => {});
+    throw new HttpError(502, buildEmailDeliveryError(error));
+  }
+}
+
+async function assertPasswordResetCode(recuperacaoSenha, codigo) {
+  if (!recuperacaoSenha) {
+    throw new HttpError(404, 'Solicitacao de recuperacao nao encontrada. Peça um novo codigo.');
+  }
+
+  if (recuperacaoSenha.expira_em < new Date()) {
+    await recuperacaoSenha.destroy();
+    throw new HttpError(410, 'Codigo expirado. Solicite um novo codigo de recuperacao.');
+  }
+
+  const normalizedCode = onlyDigits(codigo);
+
+  if (!/^\d{4,10}$/.test(normalizedCode)) {
+    throw new HttpError(400, 'Informe o codigo numerico recebido por e-mail.');
+  }
+
+  const maxAttempts = getMaxVerificationAttempts();
+
+  if (recuperacaoSenha.tentativas >= maxAttempts) {
+    await recuperacaoSenha.destroy();
+    throw new HttpError(429, 'Limite de tentativas atingido. Solicite outro codigo.');
+  }
+
+  const codeMatches = await bcrypt.compare(normalizedCode, recuperacaoSenha.codigo_hash);
+
+  if (!codeMatches) {
+    const nextAttempts = recuperacaoSenha.tentativas + 1;
+
+    if (nextAttempts >= maxAttempts) {
+      await recuperacaoSenha.destroy();
+      throw new HttpError(429, 'Codigo invalido. Limite de tentativas atingido.');
+    }
+
+    await recuperacaoSenha.update({ tentativas: nextAttempts });
+    throw new HttpError(400, 'Codigo invalido. Verifique o e-mail e tente novamente.');
+  }
+
+  return normalizedCode;
+}
+
+async function verifyPasswordResetCode({ reset_id, codigo }) {
+  const recuperacaoSenha = await RecuperacaoSenha.findByPk(reset_id);
+  await assertPasswordResetCode(recuperacaoSenha, codigo);
+  await recuperacaoSenha.update({ validado_em: new Date() });
+
+  return {
+    reset_id: recuperacaoSenha.id,
+    email: maskEmail(recuperacaoSenha.email),
+    message: 'Codigo validado. Defina sua nova senha.',
+  };
+}
+
+async function resetPassword({ reset_id, codigo, senha, confirmar_senha }) {
+  const recuperacaoSenha = await RecuperacaoSenha.findByPk(reset_id);
+  await assertPasswordResetCode(recuperacaoSenha, codigo);
+
+  if (!senha) {
+    throw new HttpError(400, 'Informe a nova senha.');
+  }
+
+  if (!validatePassword(senha)) {
+    throw new HttpError(400, passwordRequirementMessage(senha));
+  }
+
+  if (!confirmar_senha) {
+    throw new HttpError(400, 'Confirme a nova senha.');
+  }
+
+  if (!validatePasswordConfirmation(senha, confirmar_senha)) {
+    throw new HttpError(400, 'As senhas nao conferem.');
+  }
+
+  const Model = recuperacaoSenha.perfil === 'usuario' ? Usuario : Proprietario;
+  const account = await Model.findByPk(recuperacaoSenha.conta_id);
+
+  if (!account) {
+    await recuperacaoSenha.destroy();
+    throw new HttpError(404, 'Conta nao encontrada. Solicite a recuperacao novamente.');
+  }
+
+  await account.update({
+    senha_hash: await bcrypt.hash(senha, SALT_ROUNDS),
+  });
+  await recuperacaoSenha.destroy();
+
+  return {
+    message: 'Senha atualizada com sucesso. Faca login com a nova senha.',
+  };
+}
+
+async function confirmRegistrationCode({ verification_id, codigo }) {
+  const cadastroPendente = await CadastroPendente.findByPk(verification_id);
+
+  if (!cadastroPendente) {
+    throw new HttpError(404, 'Cadastro pendente nao encontrado. Solicite um novo codigo.');
+  }
+
+  if (cadastroPendente.expira_em < new Date()) {
+    await cadastroPendente.destroy();
+    throw new HttpError(410, 'Codigo expirado. Refaca o cadastro para receber um novo e-mail.');
+  }
+
+  const normalizedCode = onlyDigits(codigo);
+
+  if (!/^\d{4,10}$/.test(normalizedCode)) {
+    throw new HttpError(400, 'Informe o codigo numerico recebido por e-mail.');
+  }
+
+  const maxAttempts = getMaxVerificationAttempts();
+
+  if (cadastroPendente.tentativas >= maxAttempts) {
+    await cadastroPendente.destroy();
+    throw new HttpError(429, 'Limite de tentativas atingido. Refaca o cadastro para receber outro codigo.');
+  }
+
+  async function rejectInvalidCode() {
+    const nextAttempts = cadastroPendente.tentativas + 1;
+
+    if (nextAttempts >= maxAttempts) {
+      await cadastroPendente.destroy();
+      throw new HttpError(429, 'Codigo invalido. Limite de tentativas atingido.');
+    }
+
+    await cadastroPendente.update({ tentativas: nextAttempts });
+    throw new HttpError(400, 'Codigo invalido. Verifique o e-mail e tente novamente.');
+  }
+
+  if (!cadastroPendente.codigo_hash) {
+    throw new HttpError(400, 'Cadastro pendente sem codigo. Solicite um novo codigo.');
+  }
+
+  const codeMatches = await bcrypt.compare(normalizedCode, cadastroPendente.codigo_hash);
+
+  if (!codeMatches) {
+    await rejectInvalidCode();
+  }
+
+  return sequelize.transaction(async (transaction) => {
+    const account = await createConfirmedAccount(cadastroPendente, transaction);
+    await cadastroPendente.destroy({ transaction });
+
+    return {
+      usuario: sanitizeAccount(account, cadastroPendente.perfil),
+      message: 'E-mail validado com sucesso. Cadastro concluido.',
+    };
+  });
+}
+
+async function createConfirmedAccount(cadastroPendente, transaction) {
+  const payload = cadastroPendente.payload || {};
+
+  try {
+    if (cadastroPendente.perfil === 'usuario') {
+      await ensureUserIsAvailable(payload, transaction);
+      return Usuario.create(payload, { transaction });
+    }
+
+    await ensureOwnerIsAvailable(payload, transaction);
+    return Proprietario.create(payload, { transaction });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      throw new HttpError(409, 'E-mail ou CPF ja cadastrado.');
+      throw new HttpError(
+        409,
+        cadastroPendente.perfil === 'usuario'
+          ? 'Este e-mail ou CPF ja esta cadastrado.'
+          : 'E-mail ou CPF ja cadastrado.',
+      );
     }
 
     throw error;
   }
 }
 
-async function loginAccount({ email, senha, perfil }) {
-  const login = normalizeEmail(email);
+async function ensureUserIsAvailable(payload, transaction) {
+  const existingUsuario = await Usuario.findOne({
+    where: {
+      [Op.or]: [
+        { email: payload.email },
+        { cpf: payload.cpf },
+      ],
+    },
+    transaction,
+  });
 
-  if (!login || !senha) {
-    throw new HttpError(400, 'Informe e-mail e senha.');
+  if (existingUsuario) {
+    throw new HttpError(409, 'Este e-mail ou CPF ja esta cadastrado.');
+  }
+}
+
+async function ensureOwnerIsAvailable(payload, transaction) {
+  const existingProprietario = await Proprietario.findOne({
+    where: {
+      [Op.or]: [
+        { email: payload.email },
+        { cpf_cnpj: payload.cpf_cnpj },
+      ],
+    },
+    transaction,
+  });
+
+  if (existingProprietario) {
+    throw new HttpError(409, 'E-mail ou CPF ja cadastrado.');
+  }
+}
+
+async function loginAccount({ email, senha, perfil }) {
+  const login = ensureValidEmail(email);
+
+  if (!senha) {
+    throw new HttpError(400, 'Informe a senha.');
   }
 
   for (const { role, Model } of pickLoginModels(perfil)) {
@@ -212,15 +884,15 @@ async function loginAccount({ email, senha, perfil }) {
     const isValid = await bcrypt.compare(senha, account.senha_hash);
 
     if (!isValid) {
-      throw new HttpError(401, 'Credenciais invalidas.');
+      throw new HttpError(401, 'Senha incorreta para este e-mail.');
     }
 
     if (role === 'usuario' && account.status !== 'ativo') {
-      throw new HttpError(403, 'Usuário inativo.');
+      throw new HttpError(403, 'Usuario inativo. Entre em contato com o suporte.');
     }
 
     if (role !== 'usuario' && account.ativo === false) {
-      throw new HttpError(403, 'Conta inativa.');
+      throw new HttpError(403, 'Conta inativa. Entre em contato com o suporte.');
     }
 
     return {
@@ -229,11 +901,41 @@ async function loginAccount({ email, senha, perfil }) {
     };
   }
 
-  throw new HttpError(401, 'Credenciais invalidas.');
+  throw new HttpError(404, 'Nenhuma conta foi encontrada com este e-mail.');
+}
+
+async function updateProfile({ account, perfil, telefone, fotoPerfilUrl }) {
+  if (!['usuario', 'proprietario'].includes(perfil)) {
+    throw new HttpError(403, 'Este perfil nao permite edicao de dados pessoais.');
+  }
+
+  const updates = {};
+
+  if (telefone !== undefined) {
+    updates.telefone = normalizePhone(telefone);
+  }
+
+  if (fotoPerfilUrl) {
+    updates.foto_perfil_url = fotoPerfilUrl;
+  }
+
+  if (Object.keys(updates).length) {
+    await account.update(updates);
+  }
+
+  return {
+    usuario: sanitizeAccount(account, perfil),
+  };
 }
 
 module.exports = {
+  confirmRegistrationCode,
   loginAccount,
   registerOwner,
   registerUser,
+  requestPasswordReset,
+  resetPassword,
+  resendRegistrationCode,
+  verifyPasswordResetCode,
+  updateProfile,
 };

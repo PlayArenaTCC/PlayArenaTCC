@@ -3,6 +3,7 @@ import { adminNav, ownerNav, userNav } from '../data/navigation'
 import { demoQuadras } from '../data/demoData'
 import {
   cancelReservation,
+  confirmRegistrationCode,
   createCourt,
   createReservation,
   createSchedule,
@@ -10,7 +11,12 @@ import {
   fetchRoleData,
   login,
   registerAccount,
+  requestPasswordReset,
+  resetPassword,
+  resendRegistrationCode,
+  verifyPasswordResetCode,
   updateOwnerApproval,
+  updateProfile,
   updateReservationStatus,
   updateUserStatus,
 } from '../services/playarenaApi'
@@ -115,6 +121,12 @@ export function usePlayArenaApp() {
     setActiveView(payload.usuario.perfil === 'usuario' ? 'home' : 'dashboard')
   }
 
+  function updateStoredUser(usuario) {
+    const nextSession = { ...session, usuario }
+    persistSession(nextSession)
+    setSession(nextSession)
+  }
+
   async function handleLogin(credentials) {
     setLoading(true)
     try {
@@ -132,10 +144,96 @@ export function usePlayArenaApp() {
     setLoading(true)
     try {
       const response = await registerAccount(payload)
-      storeSession(response)
-      showToast('Cadastro criado com sucesso.')
+      showToast(response.message || 'Codigo enviado por e-mail.')
+      return response
     } catch (error) {
       showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleConfirmRegistration(payload) {
+    setLoading(true)
+    try {
+      const response = await confirmRegistrationCode(payload)
+      showToast(response.message || 'E-mail validado com sucesso. Agora faca login.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleRequestPasswordReset(payload) {
+    setLoading(true)
+    try {
+      const response = await requestPasswordReset(payload)
+      showToast(response.message || 'Codigo de recuperacao enviado por e-mail.')
+      return response
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleVerifyPasswordResetCode(payload) {
+    setLoading(true)
+    try {
+      const response = await verifyPasswordResetCode(payload)
+      showToast(response.message || 'Codigo validado.')
+      return response
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResetPassword(payload) {
+    setLoading(true)
+    try {
+      const response = await resetPassword(payload)
+      showToast(response.message || 'Senha atualizada com sucesso.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResendRegistrationCode(payload) {
+    setLoading(true)
+    try {
+      const response = await resendRegistrationCode(payload)
+      showToast(response.message || 'Codigo reenviado por e-mail.')
+      return response
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleUpdateProfile(payload) {
+    setLoading(true)
+    try {
+      const usuario = await updateProfile(session.token, payload)
+      updateStoredUser(usuario)
+      showToast('Perfil atualizado.')
+      return usuario
+    } catch (error) {
+      showToast(error.message)
+      return null
     } finally {
       setLoading(false)
     }
@@ -218,12 +316,15 @@ export function usePlayArenaApp() {
   async function handleCreateCourt(form) {
     setLoading(true)
     try {
-      const quadra = await createCourt(session.token, form)
-      setOwnerQuadras((current) => [quadra, ...current])
-      setQuadras((current) => [quadra, ...current])
-      showToast('Quadra cadastrada.')
+      const result = await createCourt(session.token, form)
+      const createdCourts = Array.isArray(result) ? result : [result]
+      setOwnerQuadras((current) => [...createdCourts, ...current])
+      setQuadras((current) => [...createdCourts, ...current])
+      showToast(createdCourts.length > 1 ? `${createdCourts.length} quadras cadastradas.` : 'Quadra cadastrada.')
+      return true
     } catch (error) {
       showToast(error.message)
+      return false
     } finally {
       setLoading(false)
     }
@@ -295,15 +396,21 @@ export function usePlayArenaApp() {
     activeView,
     adminData,
     handleCancelReservation,
+    handleConfirmRegistration,
     handleCreateCourt,
     handleCreateSchedule,
     handleLogin,
     handleLogout,
     handleOwnerApproval,
     handleRegister,
+    handleResendRegistrationCode,
+    handleRequestPasswordReset,
+    handleResetPassword,
     handleReservation,
     handleStatusReservation,
+    handleUpdateProfile,
     handleUserStatus,
+    handleVerifyPasswordResetCode,
     lastReservation,
     loading,
     navItems,

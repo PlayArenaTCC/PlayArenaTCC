@@ -45,6 +45,31 @@ async function deleteSchedule(request, response) {
   response.json({ message: 'Horario removido da agenda.' });
 }
 
+async function updateScheduleAvailability(request, response) {
+  const horario = await quadraService.updateScheduleAvailability(
+    request.auth,
+    request.params.quadraId,
+    request.params.horarioId,
+    request.body?.disponivel,
+  );
+
+  response.json({ horario });
+}
+
+function buildCourtPhotoUrl(request, filename) {
+  const forwardedProto = request.headers['x-forwarded-proto'];
+  const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
+    .split(',')[0]
+    .trim();
+
+  return `${protocol}://${request.get('host')}/uploads/court-photos/${filename}`;
+}
+
+async function uploadPhotos(request, response) {
+  const fotos = (request.files || []).map((file) => buildCourtPhotoUrl(request, file.filename));
+  response.status(201).json({ fotos });
+}
+
 module.exports = {
   createCourt,
   createSchedule,
@@ -54,5 +79,7 @@ module.exports = {
   listCourts,
   listOwnerCourts,
   listSchedules,
+  uploadPhotos,
   updateCourt,
+  updateScheduleAvailability,
 };

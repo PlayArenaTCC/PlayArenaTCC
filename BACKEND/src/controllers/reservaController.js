@@ -25,12 +25,13 @@ async function updateStatus(request, response) {
     request.auth,
     request.params.id,
     request.body.status,
+    request.body,
   );
   response.json({ reserva });
 }
 
 async function cancelReservation(request, response) {
-  const reserva = await reservaService.cancelReservation(request.auth, request.params.id);
+  const reserva = await reservaService.cancelReservation(request.auth, request.params.id, request.body);
   response.json({ reserva });
 }
 

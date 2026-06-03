@@ -1,8 +1,16 @@
-import { DollarSign, MapPin } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { fallbackCourtImage, sportLabels } from '../../data/demoData'
-import { formatPlainCurrency } from '../../utils/formatters'
+import { formatCurrency } from '../../utils/formatters'
+
+function getOriginalPrice(quadra) {
+  const original = Number(quadra.preco_original || 0)
+  const current = Number(quadra.preco_hora || 0)
+  return original > current ? original : null
+}
 
 export function CourtCard({ quadra, onOpen, featured = false }) {
+  const originalPrice = getOriginalPrice(quadra)
+
   return (
     <article className={featured ? 'court-card is-featured' : 'court-card'} onClick={() => onOpen(quadra)}>
       <div className="court-card-media">
@@ -28,11 +36,16 @@ export function CourtCard({ quadra, onOpen, featured = false }) {
           </div>
         )}
         <div className="court-card-footer">
-          <strong>
-            <DollarSign size={20} />
-            {formatPlainCurrency(quadra.preco_hora)}
-            <small>/hora</small>
-          </strong>
+          <div className={originalPrice ? 'price-stack is-promo' : 'price-stack'}>
+            {originalPrice && (
+              <span className="promo-old-price">De {formatCurrency(originalPrice)}</span>
+            )}
+            {originalPrice && <span className="promo-badge">Promoção</span>}
+            <strong>
+              {formatCurrency(quadra.preco_hora)}
+              <small>/hora</small>
+            </strong>
+          </div>
         </div>
       </div>
     </article>

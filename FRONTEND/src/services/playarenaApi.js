@@ -85,18 +85,103 @@ export async function createReservation(token, payload) {
   return response.reserva
 }
 
-export async function cancelReservation(token, reservaId) {
-  return apiRequest(`/reservas/${reservaId}/cancelar`, {
+export async function cancelReservation(token, reservaId, payload = {}) {
+  const response = await apiRequest(`/reservas/${reservaId}/cancelar`, {
     method: 'PATCH',
     token,
+    body: payload,
   })
+
+  return response.reserva
 }
 
+<<<<<<< Updated upstream
 export async function createCourt(token, form) {
   const payload = {
     ...form,
     imagem_url: form.imagem_url || fallbackCourtImage,
     preco_hora: Number(form.preco_hora || 0),
+=======
+function isUploadFile(value) {
+  return typeof File !== 'undefined' && value instanceof File
+}
+
+async function uploadCourtPhotos(token, files) {
+  const uploadFiles = files.filter(isUploadFile)
+
+  if (!uploadFiles.length) {
+    return []
+  }
+
+  const body = new FormData()
+  uploadFiles.forEach((file) => {
+    body.append('fotos', file)
+  })
+
+  const response = await apiRequest('/quadras/fotos', {
+    method: 'POST',
+    token,
+    body,
+  })
+
+  return response.fotos || []
+}
+
+async function buildCourtPayloads(token, form) {
+  const quantidadeCampos = Math.min(Math.max(Number(form.quantidade_campos || form.campos?.length || 1), 1), 12)
+
+  if (!Array.isArray(form.campos) || !form.campos.length) {
+    return [{
+      ...form,
+      imagem_url: form.imagem_url || fallbackCourtImage,
+      preco_hora: Number(form.preco_hora || 0),
+    }]
+  }
+
+  const baseName = String(form.nome || '').trim()
+  const campos = form.campos.slice(0, quantidadeCampos)
+  const payloads = []
+
+  for (const [index, campo] of campos.entries()) {
+    const photos = Array.isArray(campo.fotos) ? await uploadCourtPhotos(token, campo.fotos) : []
+    const campoName = String(campo.nome || `Campo ${index + 1}`).trim()
+    const nome = campos.length > 1 || (campoName && campoName !== 'Campo 1')
+      ? `${baseName} - ${campoName}`
+      : baseName
+
+    payloads.push({
+      nome,
+      descricao: form.descricao,
+      modalidade: form.modalidade,
+      endereco: form.endereco,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado || 'PR',
+      preco_hora: Number(campo.preco_hora || 0),
+      imagem_url: campo.imagem_url || photos[0] || fallbackCourtImage,
+      fotos: photos,
+      horarios_funcionamento: campo.horarios_funcionamento || [],
+      horarios_disponiveis: campo.horarios_disponiveis || [],
+      amenities: campo.amenities || [],
+    })
+  }
+
+  return payloads
+}
+
+export async function createCourt(token, form) {
+  const payloads = await buildCourtPayloads(token, form)
+  const quadras = []
+
+  for (const payload of payloads) {
+    const response = await apiRequest('/quadras', {
+      method: 'POST',
+      token,
+      body: payload,
+    })
+
+    quadras.push(normalizeCourt(response.quadra))
+>>>>>>> Stashed changes
   }
   const response = await apiRequest('/quadras', {
     method: 'POST',
@@ -107,26 +192,87 @@ export async function createCourt(token, form) {
   return normalizeCourt(response.quadra)
 }
 
+export async function updateCourt(token, quadra, payload) {
+  const uploadedPhotos = Array.isArray(payload.fotos) ? await uploadCourtPhotos(token, payload.fotos) : []
+  const amenities = (payload.amenities || [])
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .filter((item, index, list) => (
+      list.findIndex((current) => current.toLowerCase() === item.toLowerCase()) === index
+    ))
+  const body = {
+    preco_hora: Number(payload.preco_hora || quadra.preco_hora || 0),
+    amenities,
+  }
+
+  if (uploadedPhotos.length) {
+    body.fotos = uploadedPhotos
+    body.imagem_url = uploadedPhotos[0]
+  }
+
+  const response = await apiRequest(`/quadras/${quadra.id}`, {
+    method: 'PUT',
+    token,
+    body,
+  })
+
+  return normalizeCourt(response.quadra)
+}
+
+export async function deleteCourt(token, quadraId) {
+  return apiRequest(`/quadras/${quadraId}`, {
+    method: 'DELETE',
+    token,
+  })
+}
+
 export async function createSchedule(token, quadra, schedule) {
+  const body = {
+    hora_inicio: schedule.hora_inicio,
+    hora_fim: schedule.hora_fim,
+    valor: Number(schedule.valor || quadra.preco_hora || 0),
+  }
+
+  if (schedule.data) {
+    body.data = schedule.data
+  } else {
+    body.dia_semana = Number(schedule.dia_semana)
+  }
+
   const response = await apiRequest(`/quadras/${quadra.id}/horarios`, {
     method: 'POST',
     token,
-    body: {
-      ...schedule,
-      dia_semana: Number(schedule.dia_semana),
-      valor: Number(schedule.valor || quadra.preco_hora || 0),
-    },
+    body,
   })
 
   return response.horario
 }
 
+export async function updateScheduleAvailability(token, quadraId, horarioId, disponivel) {
+  const response = await apiRequest(`/quadras/${quadraId}/horarios/${horarioId}/disponibilidade`, {
+    method: 'PATCH',
+    token,
+    body: { disponivel },
+  })
+
+  return response.horario
+}
+
+export async function deleteSchedule(token, quadraId, horarioId) {
+  return apiRequest(`/quadras/${quadraId}/horarios/${horarioId}`, {
+    method: 'DELETE',
+    token,
+  })
+}
+
 export async function updateReservationStatus(token, reservaId, status) {
-  return apiRequest(`/reservas/${reservaId}/status`, {
+  const response = await apiRequest(`/reservas/${reservaId}/status`, {
     method: 'PATCH',
     token,
     body: { status },
   })
+
+  return response.reserva
 }
 
 export async function updateUserStatus(token, userId, status) {

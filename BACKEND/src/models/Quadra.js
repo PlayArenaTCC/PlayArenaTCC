@@ -53,6 +53,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 0,
     },
+    preco_original: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
     imagem_url: {
       type: DataTypes.STRING(500),
       allowNull: true,

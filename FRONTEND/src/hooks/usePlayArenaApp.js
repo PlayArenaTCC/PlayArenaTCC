@@ -6,17 +6,82 @@ import {
   createCourt,
   createReservation,
   createSchedule,
+  deleteCourt,
+  deleteSchedule,
   fetchQuadras,
   fetchRoleData,
   login,
   registerAccount,
   updateOwnerApproval,
+<<<<<<< Updated upstream
+=======
+  updateCourt,
+  updateProfile,
+>>>>>>> Stashed changes
   updateReservationStatus,
+  updateScheduleAvailability,
   updateUserStatus,
 } from '../services/playarenaApi'
 import { normalizeCourt } from '../utils/formatters'
 import { clearStoredSession, getStoredSession, persistSession } from '../utils/sessionStorage'
 import { useToast } from './useToast'
+
+function scheduleKey(schedule) {
+  return [
+    schedule?.data || '',
+    schedule?.dia_semana ?? '',
+    schedule?.hora_inicio || '',
+    schedule?.hora_fim || '',
+  ].join('|')
+}
+
+function mergeScheduleList(schedules = [], schedule) {
+  const key = scheduleKey(schedule)
+  const hasSchedule = schedules.some((item) => item.id === schedule.id || scheduleKey(item) === key)
+
+  if (!hasSchedule) {
+    return [...schedules, schedule]
+  }
+
+  return schedules.map((item) => (
+    item.id === schedule.id || scheduleKey(item) === key ? schedule : item
+  ))
+}
+
+function mergeCourtSchedule(court, schedule) {
+  if (!court) {
+    return court
+  }
+
+  return {
+    ...court,
+    horarios_disponiveis: mergeScheduleList(court.horarios_disponiveis || [], schedule),
+  }
+}
+
+function removeCourtSchedule(court, horario) {
+  if (!court) {
+    return court
+  }
+
+  return {
+    ...court,
+    horarios_disponiveis: (court.horarios_disponiveis || []).filter((schedule) => schedule.id !== horario.id),
+  }
+}
+
+function setCourtScheduleAvailability(court, horario, disponivel) {
+  if (!court) {
+    return court
+  }
+
+  return {
+    ...court,
+    horarios_disponiveis: (court.horarios_disponiveis || []).map((schedule) => (
+      schedule.id === horario.id ? { ...schedule, ...horario, disponivel } : schedule
+    )),
+  }
+}
 
 export function usePlayArenaApp() {
   const [session, setSession] = useState(getStoredSession)
@@ -200,28 +265,41 @@ export function usePlayArenaApp() {
     }
   }
 
-  async function handleCancelReservation(reserva) {
+  async function handleCancelReservation(reserva, payload = {}) {
     try {
+      let updatedReserva = { ...reserva, status: 'cancelada' }
+
       if (!String(reserva.id).startsWith('demo')) {
-        await cancelReservation(session.token, reserva.id)
+        updatedReserva = await cancelReservation(session.token, reserva.id, payload)
       }
 
       setReservas((current) => current.map((item) => (
-        item.id === reserva.id ? { ...item, status: 'cancelada' } : item
+        item.id === reserva.id ? { ...item, ...updatedReserva } : item
       )))
       showToast('Reserva cancelada.')
+      return true
     } catch (error) {
       showToast(error.message)
+      return false
     }
   }
 
   async function handleCreateCourt(form) {
     setLoading(true)
     try {
+<<<<<<< Updated upstream
       const quadra = await createCourt(session.token, form)
       setOwnerQuadras((current) => [quadra, ...current])
       setQuadras((current) => [quadra, ...current])
       showToast('Quadra cadastrada.')
+=======
+      const result = await createCourt(session.token, form)
+      const createdCourts = Array.isArray(result) ? result : [result]
+      setOwnerQuadras((current) => [...createdCourts, ...current])
+      setQuadras((current) => [...createdCourts, ...current])
+      showToast(createdCourts.length > 1 ? `${createdCourts.length} quadras cadastradas com sucesso.` : 'Quadra cadastrada com sucesso.')
+      return true
+>>>>>>> Stashed changes
     } catch (error) {
       showToast(error.message)
     } finally {
@@ -232,32 +310,153 @@ export function usePlayArenaApp() {
   async function handleCreateSchedule(quadra, schedule) {
     try {
       const horario = await createSchedule(session.token, quadra, schedule)
+      const alreadyExisted = (quadra.horarios_disponiveis || []).some((item) => (
+        item.id === horario.id || scheduleKey(item) === scheduleKey(horario)
+      ))
+
       setOwnerQuadras((current) => current.map((item) => (
         item.id === quadra.id
-          ? { ...item, horarios_disponiveis: [...(item.horarios_disponiveis || []), horario] }
+          ? mergeCourtSchedule(item, horario)
           : item
       )))
+<<<<<<< Updated upstream
       showToast('Horario adicionado.')
+=======
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? mergeCourtSchedule(item, horario) : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id ? mergeCourtSchedule(current, horario) : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id ? mergeCourtSchedule(current, horario) : current
+      ))
+      showToast(alreadyExisted ? 'Preco do horario atualizado.' : 'Horário adicionado.')
+>>>>>>> Stashed changes
     } catch (error) {
       showToast(error.message)
     }
   }
 
-  async function handleStatusReservation(reserva, status) {
+  async function handleDeleteSchedule(quadra, horario) {
     try {
-      await updateReservationStatus(session.token, reserva.id, status)
+      await deleteSchedule(session.token, quadra.id, horario.id)
+      setOwnerQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? removeCourtSchedule(item, horario) : item
+      )))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? removeCourtSchedule(item, horario) : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id ? removeCourtSchedule(current, horario) : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id ? removeCourtSchedule(current, horario) : current
+      ))
+      showToast('Horario removido.')
+    } catch (error) {
+      showToast(error.message)
+    }
+  }
+
+  async function handleUpdateScheduleAvailability(quadra, horario, disponivel) {
+    try {
+      const savedSchedule = await updateScheduleAvailability(session.token, quadra.id, horario.id, disponivel)
+      const updatedSchedule = {
+        ...horario,
+        ...savedSchedule,
+        disponivel,
+      }
+
+      setOwnerQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? setCourtScheduleAvailability(item, updatedSchedule, disponivel) : item
+      )))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id
+          ? disponivel
+            ? mergeCourtSchedule(item, updatedSchedule)
+            : removeCourtSchedule(item, horario)
+          : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id
+          ? disponivel
+            ? mergeCourtSchedule(current, updatedSchedule)
+            : removeCourtSchedule(current, horario)
+          : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id
+          ? disponivel
+            ? mergeCourtSchedule(current, updatedSchedule)
+            : removeCourtSchedule(current, horario)
+          : current
+      ))
+      showToast(disponivel ? 'Horario reativado.' : 'Horario inativado.')
+    } catch (error) {
+      showToast(error.message)
+    }
+  }
+
+  async function handleUpdateCourt(quadra, payload) {
+    try {
+      const updatedCourt = await updateCourt(session.token, quadra, payload)
+      setOwnerQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? updatedCourt : item
+      )))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? updatedCourt : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id ? updatedCourt : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id ? updatedCourt : current
+      ))
+      showToast('Quadra atualizada.')
+      return updatedCourt
+    } catch (error) {
+      showToast(error.message)
+      return false
+    }
+  }
+
+  async function handleDeleteCourt(quadra) {
+    try {
+      await deleteCourt(session.token, quadra.id)
+      setOwnerQuadras((current) => current.filter((item) => item.id !== quadra.id))
+      setQuadras((current) => current.filter((item) => item.id !== quadra.id))
+      showToast('Anúncio excluído.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    }
+  }
+
+  async function handleStatusReservation(reserva, status, payload = {}) {
+    try {
+      let updatedReserva = { ...reserva, status }
+
+      if (status === 'cancelada') {
+        updatedReserva = await cancelReservation(session.token, reserva.id, payload)
+      } else {
+        updatedReserva = await updateReservationStatus(session.token, reserva.id, status)
+      }
       setOwnerReservas((current) => current.map((item) => (
-        item.id === reserva.id ? { ...item, status } : item
+        item.id === reserva.id ? { ...item, ...updatedReserva } : item
       )))
       setAdminData((current) => ({
         ...current,
         reservas: (current.reservas || []).map((item) => (
-          item.id === reserva.id ? { ...item, status } : item
+          item.id === reserva.id ? { ...item, ...updatedReserva } : item
         )),
       }))
-      showToast('Reserva atualizada.')
+      showToast(status === 'cancelada' ? 'Reserva cancelada.' : 'Reserva atualizada.')
+      return true
     } catch (error) {
       showToast(error.message)
+      return false
     }
   }
 
@@ -297,12 +496,20 @@ export function usePlayArenaApp() {
     handleCancelReservation,
     handleCreateCourt,
     handleCreateSchedule,
+    handleDeleteSchedule,
+    handleDeleteCourt,
     handleLogin,
     handleLogout,
     handleOwnerApproval,
     handleRegister,
     handleReservation,
     handleStatusReservation,
+<<<<<<< Updated upstream
+=======
+    handleUpdateCourt,
+    handleUpdateProfile,
+    handleUpdateScheduleAvailability,
+>>>>>>> Stashed changes
     handleUserStatus,
     lastReservation,
     loading,

@@ -60,6 +60,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    motivo_cancelamento: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    cancelado_em: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    cancelado_por_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
+    cancelado_por_perfil: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+    },
+    cancelado_por_nome: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   }, {
     tableName: 'reservas',
     timestamps: true,
@@ -74,7 +94,10 @@ module.exports = (sequelize, DataTypes) => {
       {
         unique: true,
         fields: ['quadra_id', 'data_reserva', 'hora_inicio', 'hora_fim'],
-        name: 'reservas_unicas_por_horario',
+        name: 'reservas_unicas_por_horario_ativas',
+        where: {
+          status: ['pendente', 'confirmada'],
+        },
       },
     ],
   });

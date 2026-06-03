@@ -336,6 +336,87 @@ button:disabled {
   gap: 22px;
 }
 
+.workspace:has(.owner-portal-footer) {
+  width: 100%;
+  max-width: none;
+  padding-bottom: 0;
+}
+
+.owner-portal-screen {
+  min-height: calc(100vh - 84px);
+  grid-template-rows: 1fr auto;
+}
+
+.owner-portal-content {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.owner-portal-footer .site-footer-inner {
+  width: min(1180px, calc(100% - 32px));
+  grid-template-columns: minmax(170px, 1fr) repeat(4, minmax(112px, 0.65fr));
+  gap: 10px 28px;
+  padding: 14px 0 10px;
+}
+
+.owner-portal-footer .footer-brand {
+  gap: 6px;
+}
+
+.owner-portal-footer .footer-brand strong {
+  font-size: 18px;
+}
+
+.owner-portal-footer .footer-brand p {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.owner-portal-footer .footer-column {
+  gap: 6px;
+}
+
+.owner-portal-footer .footer-column h3 {
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+.owner-portal-footer a,
+.owner-portal-footer .footer-link-button {
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.owner-portal-footer a svg,
+.owner-portal-footer .footer-link-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.owner-portal-footer .footer-socials {
+  gap: 6px;
+}
+
+.owner-portal-footer .footer-social-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.owner-portal-footer .footer-social-icon-instagram {
+  transform: scale(2);
+}
+
+.owner-portal-footer .footer-bottom {
+  padding-top: 8px;
+}
+
+.owner-portal-footer .footer-copyright {
+  max-width: 100%;
+  font-size: 8.5px;
+  line-height: 1.25;
+}
+
 .home-hero {
   min-height: 310px;
   display: grid;
@@ -536,6 +617,38 @@ button:disabled {
   align-self: end;
 }
 
+.price-stack {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+}
+
+.price-stack strong {
+  color: #102318;
+  font-size: 21px;
+}
+
+.promo-old-price {
+  color: #7b877f;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: line-through;
+}
+
+.promo-badge {
+  width: fit-content;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  color: #7a2c00;
+  background: #ffe8d5;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .court-card-footer strong,
 .price-panel strong {
   color: #102318;
@@ -621,19 +734,24 @@ button:disabled {
   max-width: 760px;
 }
 
-.info-grid,
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
 }
 
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
 .metric {
   min-height: 80px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
   background: #ffffff;
   border: 1px solid #e3ebe6;
   border-radius: 8px;
@@ -642,11 +760,18 @@ button:disabled {
 .metric > span {
   width: 38px;
   height: 38px;
+  flex: 0 0 38px;
   display: grid;
   place-items: center;
   border-radius: 8px;
   color: #1f8f59;
   background: #e5f4ec;
+}
+
+.metric > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
 }
 
 .metric-blue > span {
@@ -668,6 +793,7 @@ button:disabled {
   display: block;
   font-size: 18px;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .metric small {
@@ -744,12 +870,73 @@ button:disabled {
   color: #607067;
 }
 
+.confirm-dialog-modal {
+  width: min(440px, 100%);
+}
+
+.confirm-dialog-modal > p {
+  margin: 0;
+  color: #405147;
+  line-height: 1.45;
+}
+
+.confirm-warning-box {
+  padding: 12px;
+  color: #765200;
+  background: #fff7df;
+  border: 1px solid #f0d58a;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.cancellation-rules-box {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  color: #214436;
+  background: #edf6f1;
+  border: 1px solid #cbe5d5;
+  border-radius: 8px;
+  line-height: 1.45;
+}
+
+.cancellation-rules-box strong {
+  font-size: 14px;
+}
+
+.cancellation-rules-box p {
+  margin: 0;
+  color: #405147;
+  font-size: 14px;
+}
+
 .total-line,
 .receipt-lines span {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.reservation-privacy-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  color: #17643f;
+  background: #e7f5ed;
+  border: 1px solid #b9dfc9;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.reservation-privacy-alert svg {
+  margin-top: 1px;
 }
 
 .total-line {
@@ -783,6 +970,200 @@ button:disabled {
   text-align: left;
 }
 
+<<<<<<< Updated upstream
+=======
+.reservation-review-summary {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: #f4f8f6;
+  border: 1px solid #dce8e1;
+  border-radius: 8px;
+}
+
+.reservation-price-note {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  color: #755200;
+  background: #fff8df;
+  border: 1px solid #f0d689;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.reservation-price-note.is-discount {
+  color: #17643f;
+  background: #e7f5ed;
+  border-color: #b9dfc9;
+}
+
+.reservation-price-note strong {
+  color: inherit;
+}
+
+.reservation-review-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.reservation-review-heading svg {
+  color: #1f8f59;
+}
+
+.reservation-review-heading strong,
+.reservation-whatsapp-card strong {
+  color: #17241c;
+}
+
+.reservation-review-heading small,
+.reservation-whatsapp-card small {
+  display: block;
+  margin-top: 2px;
+  color: #65756b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.reservation-review-lines {
+  display: grid;
+  gap: 8px;
+}
+
+.reservation-review-lines span {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.4fr) minmax(0, 1fr);
+  gap: 10px;
+  color: #65756b;
+  font-size: 14px;
+}
+
+.reservation-review-lines strong {
+  color: #17241c;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.reservation-whatsapp-card {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 14px;
+  background: #f4f8f6;
+  border: 1px solid #dce8e1;
+  border-radius: 8px;
+}
+
+.reservation-whatsapp-card a {
+  text-decoration: none;
+}
+
+.reservation-details-modal {
+  width: min(560px, 100%);
+}
+
+.reservation-detail-lines {
+  display: grid;
+  gap: 10px;
+}
+
+.reservation-detail-lines span {
+  min-height: 56px;
+  display: grid;
+  grid-template-columns: auto minmax(90px, 0.45fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.reservation-detail-lines svg {
+  color: #1f8f59;
+}
+
+.reservation-detail-lines small,
+.reservation-notes small {
+  color: #65756b;
+  font-weight: 800;
+}
+
+.reservation-detail-lines strong {
+  min-width: 0;
+  color: #17241c;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.reservation-notes {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.reservation-extra-block,
+.reservation-court-summary {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.reservation-extra-block p,
+.reservation-court-summary span {
+  margin: 0;
+  color: #17241c;
+  line-height: 1.45;
+}
+
+.reservation-court-summary span {
+  display: grid;
+  gap: 3px;
+}
+
+.reservation-extra-block small,
+.reservation-court-summary strong {
+  color: #65756b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.reservation-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reservation-chip-list span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: #17643f;
+  background: #e7f5ed;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.reservation-notes p {
+  margin: 0;
+  color: #17241c;
+  line-height: 1.45;
+}
+
+>>>>>>> Stashed changes
 .list-stack {
   display: grid;
   gap: 12px;
@@ -800,6 +1181,108 @@ button:disabled {
   border-radius: 8px;
 }
 
+<<<<<<< Updated upstream
+=======
+.reservation-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.reservation-row-main {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.reservation-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.owner-reservation-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 18px;
+  padding: 16px;
+}
+
+.owner-reservation-main,
+.owner-reservation-side {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.owner-reservation-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-reservation-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-reservation-summary span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: #405147;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.owner-reservation-details {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  color: #65756b;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.owner-reservation-details small {
+  color: #405147;
+  font-weight: 900;
+}
+
+.owner-reservation-details span {
+  color: #65756b;
+}
+
+.owner-reservation-side {
+  justify-items: end;
+  align-content: center;
+}
+
+.owner-reservation-side > strong {
+  color: #102318;
+  font-size: 17px;
+}
+
+.owner-reservation-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.owner-reservation-locked {
+  color: #65756b;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+>>>>>>> Stashed changes
 .status-dot {
   width: fit-content;
   min-height: 24px;
@@ -993,6 +1476,199 @@ button:disabled {
   grid-column: 1 / -1;
 }
 
+<<<<<<< Updated upstream
+=======
+.form-section,
+.subcourt-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.subcourt-card {
+  background: #f9fbfa;
+}
+
+.form-section-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.form-section-header div {
+  display: grid;
+  gap: 4px;
+}
+
+.form-section-header strong {
+  color: #102318;
+  font-size: 15px;
+}
+
+.form-section-header small,
+.field-help {
+  color: #65756b;
+  line-height: 1.35;
+}
+
+.form-section-header.compact {
+  margin-bottom: 4px;
+}
+
+.subcourt-grid,
+.time-range-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.form-block {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.photo-upload-box,
+.photo-file-list,
+.amenity-choice-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.photo-upload-box {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  padding: 12px;
+  color: #65756b;
+  background: #f4f8f6;
+  border: 1px dashed #b9dfc9;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.photo-upload-button {
+  width: fit-content;
+  cursor: pointer;
+}
+
+.photo-upload-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo-file-list {
+  gap: 6px;
+}
+
+.photo-file-row {
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  color: #17241c;
+  background: #ffffff;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.photo-file-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-inline {
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.day-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.available-times-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.choice-pill {
+  min-height: 44px;
+  color: #17241c;
+  background: #ffffff;
+  border: 1px solid #d9e2dd;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.choice-pill.is-selected {
+  color: #ffffff;
+  background: #1f8f59;
+  border-color: #1f8f59;
+}
+
+.amenity-choice-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.time-range-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.checkbox-pill {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #17241c;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.checkbox-pill input {
+  width: 16px;
+  height: 16px;
+  accent-color: #1f8f59;
+}
+
+.owner-card-meta {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  color: #65756b;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+>>>>>>> Stashed changes
 .slim-action {
   min-height: 38px;
 }
@@ -1001,12 +1677,229 @@ button:disabled {
   min-height: auto;
 }
 
+.owner-card:focus-visible {
+  outline: 3px solid rgba(31, 143, 89, 0.28);
+  outline-offset: 3px;
+}
+
+.owner-court-details-modal {
+  width: min(620px, 100%);
+}
+
+.owner-court-detail-image {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #dfe8e2;
+}
+
+.owner-court-detail-heading {
+  display: grid;
+  gap: 6px;
+}
+
+.owner-court-detail-heading h2,
+.owner-court-detail-heading p {
+  margin: 0;
+}
+
+.owner-court-detail-heading p {
+  color: #65756b;
+  font-weight: 800;
+}
+
+.owner-schedule-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-schedule-chip-list span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: #17643f;
+  background: #e7f5ed;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.owner-schedule-manager {
+  display: grid;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #edf3ef;
+}
+
+.owner-court-edit-form {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.owner-court-edit-form > label {
+  display: grid;
+  gap: 6px;
+  color: #65756b;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.owner-court-edit-form input[type="number"] {
+  min-height: 36px;
+  padding: 0 10px;
+  color: #17241c;
+  background: #ffffff;
+  border: 1px solid #d9e2dd;
+  border-radius: 8px;
+}
+
+.owner-edit-amenities {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.owner-schedule-active {
+  display: grid;
+  gap: 10px;
+}
+
+.owner-schedule-active > strong {
+  font-size: 14px;
+}
+
+.owner-schedule-active p {
+  margin: 0;
+  color: #65756b;
+  font-size: 13px;
+}
+
+.owner-schedule-groups {
+  display: grid;
+  gap: 10px;
+}
+
+.owner-schedule-group {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  background: #f4f8f6;
+  border: 1px solid #e3ebe6;
+  border-radius: 8px;
+}
+
+.owner-schedule-group small {
+  color: #65756b;
+  font-weight: 900;
+}
+
+.owner-schedule-group.is-inactive {
+  background: #f8f5f0;
+  border-color: #eadfce;
+}
+
+.owner-schedule-row {
+  min-height: 32px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: #17241c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.owner-schedule-row.is-inactive {
+  color: #786958;
+}
+
+.owner-schedule-row > svg {
+  color: #1f8f59;
+}
+
+.owner-schedule-row.is-inactive > svg {
+  color: #9b8062;
+}
+
+.owner-schedule-time {
+  min-width: 0;
+}
+
+.owner-schedule-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.owner-schedule-row button {
+  width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+}
+
+.schedule-disable-button {
+  color: #17643f;
+  background: #e7f5ed;
+}
+
+.schedule-reactivate-button {
+  color: #17643f;
+  background: #e7f5ed;
+}
+
+.schedule-delete-button {
+  color: #a23232;
+  background: #fdeeee;
+}
+
 .schedule-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid #edf3ef;
+}
+
+.schedule-type-toggle {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: #edf3ef;
+  border: 1px solid #d9e2dd;
+  border-radius: 8px;
+}
+
+.schedule-type-toggle button {
+  min-height: 32px;
+  color: #65756b;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  font-weight: 900;
+}
+
+.schedule-type-toggle button.is-selected {
+  color: #17643f;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(23, 100, 63, 0.14);
+}
+
+.schedule-form label {
+  display: grid;
+  gap: 5px;
+  color: #65756b;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .schedule-form select,
@@ -1018,7 +1911,7 @@ button:disabled {
   border-radius: 8px;
 }
 
-.schedule-form button {
+.schedule-form > button {
   grid-column: 1 / -1;
 }
 
@@ -1173,6 +2066,14 @@ button:disabled {
   .list-row {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .owner-reservation-row {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-reservation-side {
+    justify-items: stretch;
   }
 
   .row-actions,
@@ -2091,6 +2992,16 @@ button:disabled {
   .main-nav {
     background: #fff;
   }
+
+  .owner-portal-footer .site-footer-inner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 22px;
+  }
+
+  .owner-portal-footer .footer-brand,
+  .owner-portal-footer .footer-bottom {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 620px) {
@@ -2148,6 +3059,53 @@ button:disabled {
     padding: 42px 0;
   }
 
+<<<<<<< Updated upstream
+=======
+  .owner-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin: 10px auto 38px;
+    padding: 22px;
+  }
+
+  .owner-cta .primary-action {
+    width: 100%;
+  }
+
+  .site-footer-inner {
+    width: min(100% - 28px, 1280px);
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 32px 0 22px;
+  }
+
+  .owner-portal-footer .site-footer-inner {
+    width: min(100% - 28px, 1280px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 18px;
+    padding: 12px 0 10px;
+  }
+
+  .owner-portal-footer .footer-brand,
+  .owner-portal-footer .footer-bottom {
+    grid-column: 1 / -1;
+  }
+
+  .owner-portal-footer .footer-column {
+    gap: 5px;
+  }
+
+  .owner-portal-footer .footer-copyright {
+    font-size: 8px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+>>>>>>> Stashed changes
   .court-grid {
     grid-template-columns: 1fr;
   }
@@ -3119,6 +4077,26 @@ button:disabled {
     0 0 30px var(--app-neon);
 }
 
+.app-shell.dark-theme .confirm-dialog-modal > p {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .confirm-warning-box {
+  color: #ffe7bd;
+  background: rgba(255, 150, 63, 0.14);
+  border-color: rgba(255, 188, 122, 0.26);
+}
+
+.app-shell.dark-theme .cancellation-rules-box {
+  color: var(--app-text);
+  background: rgba(83, 255, 154, 0.11);
+  border-color: rgba(128, 255, 176, 0.22);
+}
+
+.app-shell.dark-theme .cancellation-rules-box p {
+  color: var(--app-muted);
+}
+
 .app-shell.dark-theme .search-bar {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.028)),
@@ -3192,8 +4170,19 @@ button:disabled {
 }
 
 .app-shell.dark-theme .court-card-footer strong,
-.app-shell.dark-theme .price-panel strong {
+.app-shell.dark-theme .price-panel strong,
+.app-shell.dark-theme .price-stack strong {
   color: #ffffff;
+}
+
+.app-shell.dark-theme .promo-old-price {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .promo-badge {
+  color: #ffe5bc;
+  background: rgba(255, 150, 63, 0.14);
+  border: 1px solid rgba(255, 188, 122, 0.24);
 }
 
 .app-shell.dark-theme .court-card-footer strong svg,
@@ -3239,6 +4228,80 @@ button:disabled {
   border: 1px solid var(--app-border);
 }
 
+<<<<<<< Updated upstream
+=======
+.app-shell.dark-theme .form-section-header strong,
+.app-shell.dark-theme .checkbox-pill,
+.app-shell.dark-theme .photo-file-row,
+.app-shell.dark-theme .owner-schedule-row {
+  color: var(--app-text);
+}
+
+.app-shell.dark-theme .schedule-type-toggle {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: var(--app-border);
+}
+
+.app-shell.dark-theme .schedule-type-toggle button {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .schedule-type-toggle button.is-selected {
+  color: #dfffe8;
+  background: rgba(67, 232, 118, 0.12);
+  box-shadow: none;
+}
+
+.app-shell.dark-theme .choice-pill.is-selected {
+  color: #041008;
+  background: linear-gradient(90deg, #1f8f59, #43e876 58%, #b9ff65);
+  border-color: var(--app-border-strong);
+}
+
+.app-shell.dark-theme .field select,
+.app-shell.dark-theme .schedule-form select {
+  color-scheme: dark;
+}
+
+.app-shell.dark-theme .field select option,
+.app-shell.dark-theme .schedule-form select option {
+  color: #f4fff6;
+  background: #07130b;
+}
+
+.app-shell.dark-theme .field select option:checked,
+.app-shell.dark-theme .schedule-form select option:checked {
+  color: #ffffff;
+  background: #143b22;
+}
+
+.app-shell.dark-theme .filters-panel .input-with-icon {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--app-border);
+}
+
+.app-shell.dark-theme .filters-panel .input-with-icon svg {
+  color: #70f28d;
+}
+
+.app-shell.dark-theme .filters-panel .input-with-icon input {
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+}
+
+.app-shell.dark-theme .filters-panel .input-with-icon:focus-within {
+  border-color: var(--app-border-strong);
+  box-shadow:
+    0 0 0 3px rgba(67, 232, 118, 0.10),
+    0 0 24px var(--app-neon);
+}
+
+.app-shell.dark-theme .filters-panel .input-with-icon input:focus {
+  box-shadow: none;
+}
+
+>>>>>>> Stashed changes
 .app-shell.dark-theme .search-bar input {
   border: 0;
   background: transparent;
@@ -3349,11 +4412,155 @@ button:disabled {
 }
 
 .app-shell.dark-theme .filter-note,
+<<<<<<< Updated upstream
 .app-shell.dark-theme .receipt-lines {
+=======
+.app-shell.dark-theme .receipt-lines,
+.app-shell.dark-theme .reservation-review-summary,
+.app-shell.dark-theme .reservation-price-note,
+.app-shell.dark-theme .reservation-whatsapp-card,
+.app-shell.dark-theme .reservation-detail-lines span,
+.app-shell.dark-theme .reservation-extra-block,
+.app-shell.dark-theme .reservation-court-summary,
+.app-shell.dark-theme .reservation-notes,
+.app-shell.dark-theme .photo-upload-box,
+.app-shell.dark-theme .photo-file-row,
+.app-shell.dark-theme .owner-court-edit-form,
+.app-shell.dark-theme .owner-schedule-group,
+.app-shell.dark-theme .owner-reservation-summary span,
+.app-shell.dark-theme .owner-reservation-details {
+>>>>>>> Stashed changes
   background: rgba(255, 255, 255, 0.045);
   border: 1px solid var(--app-border);
 }
 
+<<<<<<< Updated upstream
+=======
+.app-shell.dark-theme .reservation-privacy-alert {
+  color: #d9ffdf;
+  background: rgba(67, 232, 118, 0.10);
+  border: 1px solid var(--app-border);
+}
+
+.app-shell.dark-theme .reservation-privacy-alert svg,
+.app-shell.dark-theme .reservation-review-heading svg {
+  color: #70f28d;
+}
+
+.app-shell.dark-theme .reservation-detail-lines svg {
+  color: #70f28d;
+}
+
+.app-shell.dark-theme .reservation-detail-lines small,
+.app-shell.dark-theme .reservation-notes small,
+.app-shell.dark-theme .reservation-review-heading small,
+.app-shell.dark-theme .reservation-whatsapp-card small,
+.app-shell.dark-theme .owner-reservation-details small {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .reservation-detail-lines strong,
+.app-shell.dark-theme .reservation-extra-block p,
+.app-shell.dark-theme .reservation-court-summary span,
+.app-shell.dark-theme .reservation-notes p,
+.app-shell.dark-theme .reservation-review-heading strong,
+.app-shell.dark-theme .reservation-review-lines strong,
+.app-shell.dark-theme .reservation-whatsapp-card strong {
+  color: var(--app-text);
+}
+
+.app-shell.dark-theme .reservation-review-lines span {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .owner-reservation-details span {
+  color: var(--app-text);
+}
+
+.app-shell.dark-theme .photo-upload-box,
+.app-shell.dark-theme .owner-schedule-active p,
+.app-shell.dark-theme .owner-court-edit-form > label,
+.app-shell.dark-theme .owner-schedule-group small,
+.app-shell.dark-theme .owner-reservation-summary span,
+.app-shell.dark-theme .owner-reservation-details {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .owner-schedule-row > svg {
+  color: #70f28d;
+}
+
+.app-shell.dark-theme .owner-schedule-group.is-inactive {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: var(--app-border);
+}
+
+.app-shell.dark-theme .owner-schedule-row.is-inactive {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .owner-schedule-row.is-inactive > svg {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .schedule-disable-button {
+  color: #caffd1;
+  background: rgba(67, 232, 118, 0.10);
+  border: 1px solid rgba(112, 242, 141, 0.22);
+}
+
+.app-shell.dark-theme .schedule-reactivate-button {
+  color: #caffd1;
+  background: rgba(67, 232, 118, 0.10);
+  border: 1px solid rgba(112, 242, 141, 0.22);
+}
+
+.app-shell.dark-theme .schedule-delete-button {
+  color: #ffd7d7;
+  background: rgba(255, 83, 83, 0.10);
+  border: 1px solid rgba(255, 135, 135, 0.24);
+}
+
+.app-shell.dark-theme .owner-reservation-side > strong {
+  color: #ffffff;
+}
+
+.app-shell.dark-theme .owner-reservation-locked {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .owner-court-edit-form input[type="number"] {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--app-border);
+}
+
+.app-shell.dark-theme .reservation-extra-block small,
+.app-shell.dark-theme .reservation-court-summary strong {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .reservation-chip-list span {
+  color: #caffd1;
+  background: rgba(67, 232, 118, 0.10);
+  border: 1px solid var(--app-border);
+}
+
+.app-shell.dark-theme .owner-court-detail-image {
+  background: #07110b;
+}
+
+.app-shell.dark-theme .owner-court-detail-heading p {
+  color: var(--app-muted);
+}
+
+.app-shell.dark-theme .owner-schedule-chip-list span {
+  color: #caffd1;
+  background: rgba(67, 232, 118, 0.10);
+  border: 1px solid var(--app-border);
+}
+
+>>>>>>> Stashed changes
 .app-shell.dark-theme .detail-topbar {
   background: rgba(2, 7, 4, 0.88);
   border-bottom: 1px solid var(--app-border);

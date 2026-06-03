@@ -64,7 +64,16 @@ function App() {
             ownerReservas={playArena.ownerReservas}
             onCreateCourt={playArena.handleCreateCourt}
             onCreateSchedule={playArena.handleCreateSchedule}
+            onDeleteCourt={playArena.handleDeleteCourt}
+            onDeleteSchedule={playArena.handleDeleteSchedule}
             onStatusReservation={playArena.handleStatusReservation}
+<<<<<<< Updated upstream
+=======
+            onUpdateCourt={playArena.handleUpdateCourt}
+            onUpdateProfile={playArena.handleUpdateProfile}
+            onUpdateScheduleAvailability={playArena.handleUpdateScheduleAvailability}
+            onNavigate={playArena.setActiveView}
+>>>>>>> Stashed changes
             loading={playArena.loading}
           />
         )}

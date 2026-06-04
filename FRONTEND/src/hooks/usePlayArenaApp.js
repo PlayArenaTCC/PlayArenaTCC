@@ -1,23 +1,126 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { adminNav, ownerNav, userNav } from '../data/navigation'
 import { demoQuadras } from '../data/demoData'
 import {
+  banUser,
+  blockUserTemporarily,
   cancelReservation,
+  changeAdminPassword,
+  clearAdminSpaceDeactivation,
+  clearUserTemporaryBlock,
+  confirmRegistrationCode,
+  createAdmin,
+  createAdminSpace,
   createCourt,
   createReservation,
   createSchedule,
+<<<<<<< Updated upstream
+=======
+  deleteAccount,
+  deleteAdminSpace,
+  deleteCourt,
+  deleteSchedule,
+  fetchNotifications,
+>>>>>>> Stashed changes
   fetchQuadras,
   fetchRoleData,
   login,
+  markAllNotificationsRead,
+  markNotificationRead,
   registerAccount,
+  reviewDocumentation,
+  requestPasswordReset,
+  resetPassword,
+  resendRegistrationCode,
+  verifyPasswordResetCode,
   updateOwnerApproval,
+<<<<<<< Updated upstream
   updateReservationStatus,
   updateUserStatus,
+=======
+  updateAdminSpace,
+  updateCourt,
+  updateProfile,
+  updateReservationStatus,
+  updateScheduleAvailability,
+  deactivateAdminSpace,
+>>>>>>> Stashed changes
 } from '../services/playarenaApi'
-import { normalizeCourt } from '../utils/formatters'
+import { DATA_CHANGED_EVENT, subscribeToServerDataChanges } from '../services/httpClient'
+import { normalizeCourt, sortReservations } from '../utils/formatters'
 import { clearStoredSession, getStoredSession, persistSession } from '../utils/sessionStorage'
 import { useToast } from './useToast'
 
+<<<<<<< Updated upstream
+=======
+const FALLBACK_REFRESH_INTERVAL_MS = 15000
+
+function scheduleKey(schedule) {
+  return [
+    schedule?.data || '',
+    schedule?.dia_semana ?? '',
+    schedule?.hora_inicio || '',
+    schedule?.hora_fim || '',
+  ].join('|')
+}
+
+function mergeScheduleList(schedules = [], schedule) {
+  const key = scheduleKey(schedule)
+  const hasSchedule = schedules.some((item) => item.id === schedule.id || scheduleKey(item) === key)
+
+  if (!hasSchedule) {
+    return [...schedules, schedule]
+  }
+
+  return schedules.map((item) => (
+    item.id === schedule.id || scheduleKey(item) === key ? schedule : item
+  ))
+}
+
+function mergeCourtSchedule(court, schedule) {
+  if (!court) {
+    return court
+  }
+
+  return {
+    ...court,
+    horarios_disponiveis: mergeScheduleList(court.horarios_disponiveis || [], schedule),
+  }
+}
+
+function removeCourtSchedule(court, horario) {
+  if (!court) {
+    return court
+  }
+
+  return {
+    ...court,
+    horarios_disponiveis: (court.horarios_disponiveis || []).filter((schedule) => schedule.id !== horario.id),
+  }
+}
+
+function setCourtScheduleAvailability(court, horario, disponivel) {
+  if (!court) {
+    return court
+  }
+
+  return {
+    ...court,
+    horarios_disponiveis: (court.horarios_disponiveis || []).map((schedule) => (
+      schedule.id === horario.id ? { ...schedule, ...horario, disponivel } : schedule
+    )),
+  }
+}
+
+function syncCourtReference(current, courts) {
+  if (!current) {
+    return current
+  }
+
+  return courts.find((court) => court.id === current.id) || null
+}
+
+>>>>>>> Stashed changes
 export function usePlayArenaApp() {
   const [session, setSession] = useState(getStoredSession)
   const [activeView, setActiveView] = useState('home')
@@ -25,94 +128,190 @@ export function usePlayArenaApp() {
   const [reservas, setReservas] = useState([])
   const [ownerQuadras, setOwnerQuadras] = useState([])
   const [ownerReservas, setOwnerReservas] = useState([])
+  const [ownerDocumentacoes, setOwnerDocumentacoes] = useState([])
   const [adminData, setAdminData] = useState({})
   const [selectedCourt, setSelectedCourt] = useState(null)
   const [reservationCourt, setReservationCourt] = useState(null)
   const [lastReservation, setLastReservation] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [notificationUnreadCount, setNotificationUnreadCount] = useState(0)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const sessionTokenRef = useRef(session?.token)
   const { toast, setToast, showToast } = useToast()
 
   const navItems = session?.usuario?.perfil === 'admin'
-    ? adminNav
+    ? adminNav.filter((item) => item.id !== 'administradores' || session.usuario.nivel_acesso === 'super_admin')
     : session?.usuario?.perfil === 'proprietario'
       ? ownerNav
       : userNav
 
-  function applyRoleData(data) {
+  useEffect(() => {
+    sessionTokenRef.current = session?.token
+  }, [session?.token])
+
+  const syncStoredUser = useCallback((usuario) => {
+    if (!usuario) {
+      return
+    }
+
+    setSession((current) => {
+      if (!current || current.usuario?.perfil !== usuario.perfil) {
+        return current
+      }
+
+      if (JSON.stringify(current.usuario) === JSON.stringify(usuario)) {
+        return current
+      }
+
+      const nextSession = { ...current, usuario }
+      persistSession(nextSession)
+      return nextSession
+    })
+  }, [])
+
+  const applyRoleData = useCallback((data) => {
     if (!data) {
       return
     }
 
+    syncStoredUser(data.usuario)
+
     if (data.role === 'usuario') {
-      setReservas(data.reservas)
+      setReservas(sortReservations(data.reservas))
     }
 
     if (data.role === 'proprietario') {
       setOwnerQuadras(data.ownerQuadras)
-      setOwnerReservas(data.ownerReservas)
+      setOwnerReservas(sortReservations(data.ownerReservas))
+      setOwnerDocumentacoes(data.ownerDocumentacoes || [])
     }
 
     if (data.role === 'admin') {
       setAdminData(data.adminData)
     }
-  }
+  }, [syncStoredUser])
 
-  async function loadRoleData(currentSession = session) {
+  const loadPublicCourts = useCallback(async ({ fallbackToDemo = false } = {}) => {
     try {
-      const data = await fetchRoleData(currentSession)
-      applyRoleData(data)
-    } catch (error) {
-      showToast(error.message)
-    }
-  }
-
-  useEffect(() => {
-    let active = true
-
-    fetchQuadras()
-      .then((data) => {
-        if (active) {
-          setQuadras(data)
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setQuadras(demoQuadras.map(normalizeCourt))
-        }
-      })
-
-    return () => {
-      active = false
+      const data = await fetchQuadras()
+      setQuadras(data)
+      setSelectedCourt((current) => syncCourtReference(current, data))
+      setReservationCourt((current) => syncCourtReference(current, data))
+    } catch {
+      if (fallbackToDemo) {
+        const fallbackCourts = demoQuadras.map(normalizeCourt)
+        setQuadras(fallbackCourts)
+        setSelectedCourt((current) => syncCourtReference(current, fallbackCourts))
+        setReservationCourt((current) => syncCourtReference(current, fallbackCourts))
+      }
     }
   }, [])
 
-  useEffect(() => {
-    let active = true
-
-    if (session) {
-      fetchRoleData(session)
-        .then((data) => {
-          if (active) {
-            applyRoleData(data)
-          }
-        })
-        .catch((error) => {
-          if (active) {
-            showToast(error.message)
-          }
-        })
+  const loadRoleData = useCallback(async (currentSession = session, { silent = false } = {}) => {
+    if (!currentSession) {
+      return
     }
 
-    return () => {
-      active = false
+    try {
+      const data = await fetchRoleData(currentSession)
+
+      if (sessionTokenRef.current !== currentSession.token) {
+        return
+      }
+
+      applyRoleData(data)
+    } catch (error) {
+      if (!silent) {
+        showToast(error.message)
+      }
+    }
+  }, [applyRoleData, session, showToast])
+
+  const loadNotifications = useCallback(async ({ silent = false } = {}) => {
+    if (session?.usuario?.perfil !== 'usuario') {
+      return
+    }
+
+    const token = session.token
+
+    if (!silent) {
+      setNotificationsLoading(true)
+    }
+
+    try {
+      const response = await fetchNotifications(token)
+
+      if (sessionTokenRef.current !== token) {
+        return
+      }
+
+      setNotifications(response.notifications || [])
+      setNotificationUnreadCount(Number(response.unreadCount || 0))
+    } catch (error) {
+      if (!silent) {
+        showToast(error.message)
+      }
+    } finally {
+      if (!silent) {
+        setNotificationsLoading(false)
+      }
     }
   }, [session, showToast])
 
+  const refreshAppData = useCallback(async ({ silent = true, fallbackToDemo = false } = {}) => {
+    await Promise.all([
+      loadPublicCourts({ fallbackToDemo }),
+      session ? loadRoleData(session, { silent }) : Promise.resolve(),
+      session?.usuario?.perfil === 'usuario' ? loadNotifications({ silent }) : Promise.resolve(),
+    ])
+  }, [loadNotifications, loadPublicCourts, loadRoleData, session])
+
+  useEffect(() => {
+    function refreshSilently() {
+      refreshAppData({ silent: true })
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === 'visible') {
+        refreshSilently()
+      }
+    }
+
+    const initialLoadId = window.setTimeout(() => {
+      refreshAppData({ silent: false, fallbackToDemo: true })
+    }, 0)
+    const intervalId = window.setInterval(() => {
+      refreshSilently()
+    }, FALLBACK_REFRESH_INTERVAL_MS)
+    const unsubscribeServerEvents = subscribeToServerDataChanges()
+
+    window.addEventListener(DATA_CHANGED_EVENT, refreshSilently)
+    window.addEventListener('focus', refreshSilently)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+
+    return () => {
+      window.clearTimeout(initialLoadId)
+      window.clearInterval(intervalId)
+      unsubscribeServerEvents()
+      window.removeEventListener(DATA_CHANGED_EVENT, refreshSilently)
+      window.removeEventListener('focus', refreshSilently)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+    }
+  }, [refreshAppData])
+
   function storeSession(payload) {
+    sessionTokenRef.current = payload.token
     persistSession(payload)
     setSession(payload)
+    setNotifications([])
+    setNotificationUnreadCount(0)
     setActiveView(payload.usuario.perfil === 'usuario' ? 'home' : 'dashboard')
+  }
+
+  function updateStoredUser(usuario) {
+    syncStoredUser(usuario)
   }
 
   async function handleLogin(credentials) {
@@ -132,22 +331,177 @@ export function usePlayArenaApp() {
     setLoading(true)
     try {
       const response = await registerAccount(payload)
-      storeSession(response)
-      showToast('Cadastro criado com sucesso.')
+      showToast(response.message || 'Codigo enviado por e-mail.')
+      return response
     } catch (error) {
       showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleConfirmRegistration(payload) {
+    setLoading(true)
+    try {
+      const response = await confirmRegistrationCode(payload)
+      showToast(response.message || 'E-mail validado com sucesso. Agora faca login.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleRequestPasswordReset(payload) {
+    setLoading(true)
+    try {
+      const response = await requestPasswordReset(payload)
+      showToast(response.message || 'Codigo de recuperacao enviado por e-mail.')
+      return response
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleVerifyPasswordResetCode(payload) {
+    setLoading(true)
+    try {
+      const response = await verifyPasswordResetCode(payload)
+      showToast(response.message || 'Codigo validado.')
+      return response
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResetPassword(payload) {
+    setLoading(true)
+    try {
+      const response = await resetPassword(payload)
+      showToast(response.message || 'Senha atualizada com sucesso.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleChangeAdminPassword(payload) {
+    setLoading(true)
+    try {
+      const response = await changeAdminPassword(session.token, payload)
+      showToast(response.message || 'Senha atualizada com sucesso.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCreateAdmin(payload) {
+    setLoading(true)
+    try {
+      const response = await createAdmin(session.token, payload)
+      const administrador = response.administrador
+
+      if (administrador) {
+        setAdminData((current) => ({
+          ...current,
+          administradores: [
+            administrador,
+            ...(current.administradores || []).filter((item) => item.id !== administrador.id),
+          ],
+        }))
+      }
+
+      showToast(response.message || 'Administrador cadastrado com sucesso.')
+      return administrador || true
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResendRegistrationCode(payload) {
+    setLoading(true)
+    try {
+      const response = await resendRegistrationCode(payload)
+      showToast(response.message || 'Codigo reenviado por e-mail.')
+      return response
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleUpdateProfile(payload) {
+    setLoading(true)
+    try {
+      const usuario = await updateProfile(session.token, payload)
+      updateStoredUser(usuario)
+      showToast('Perfil atualizado.')
+      return usuario
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setLoading(true)
+    try {
+      await deleteAccount(session.token)
+      sessionTokenRef.current = undefined
+      clearStoredSession()
+      setSession(null)
+      setReservas([])
+      setOwnerReservas([])
+      setOwnerQuadras([])
+      setOwnerDocumentacoes([])
+      setAdminData({})
+      setNotifications([])
+      setNotificationUnreadCount(0)
+      setActiveView('home')
+      showToast('Conta excluida com sucesso.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
     } finally {
       setLoading(false)
     }
   }
 
   function handleLogout() {
+    sessionTokenRef.current = undefined
     clearStoredSession()
     setSession(null)
     setReservas([])
     setOwnerReservas([])
     setOwnerQuadras([])
+    setOwnerDocumentacoes([])
     setAdminData({})
+    setNotifications([])
+    setNotificationUnreadCount(0)
     setActiveView('home')
   }
 
@@ -161,7 +515,7 @@ export function usePlayArenaApp() {
     const horario = payload.horario
 
     if (!court || !horario) {
-      showToast('Escolha um horario para reservar.')
+      showToast('Escolha um horário para reservar.')
       return
     }
 
@@ -190,7 +544,7 @@ export function usePlayArenaApp() {
         reserva = await createReservation(session.token, reservaPayload)
       }
 
-      setReservas((current) => [reserva, ...current])
+      setReservas((current) => sortReservations([reserva, ...current]))
       setLastReservation(reserva)
       setReservationCourt(null)
       showToast('Reserva confirmada.')
@@ -206,24 +560,182 @@ export function usePlayArenaApp() {
         await cancelReservation(session.token, reserva.id)
       }
 
+<<<<<<< Updated upstream
       setReservas((current) => current.map((item) => (
         item.id === reserva.id ? { ...item, status: 'cancelada' } : item
       )))
+=======
+      setReservas((current) => sortReservations(current.map((item) => (
+        item.id === reserva.id ? { ...item, ...updatedReserva } : item
+      ))))
+>>>>>>> Stashed changes
       showToast('Reserva cancelada.')
     } catch (error) {
       showToast(error.message)
     }
   }
 
+  async function handleMarkNotificationRead(notification) {
+    if (!notification || notification.isRead) {
+      return true
+    }
+
+    try {
+      const response = await markNotificationRead(session.token, notification.id)
+      const updatedNotification = response.notification
+
+      setNotifications((current) => current.map((item) => (
+        item.id === notification.id ? { ...item, ...updatedNotification } : item
+      )))
+      setNotificationUnreadCount((current) => Math.max(current - 1, 0))
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    }
+  }
+
+  async function handleMarkAllNotificationsRead() {
+    try {
+      const response = await markAllNotificationsRead(session.token)
+      setNotifications(response.notifications || [])
+      setNotificationUnreadCount(Number(response.unreadCount || 0))
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    }
+  }
+
   async function handleCreateCourt(form) {
     setLoading(true)
     try {
+<<<<<<< Updated upstream
       const quadra = await createCourt(session.token, form)
       setOwnerQuadras((current) => [quadra, ...current])
       setQuadras((current) => [quadra, ...current])
       showToast('Quadra cadastrada.')
+=======
+      const result = await createCourt(session.token, form)
+      const createdCourts = Array.isArray(result) ? result : [result]
+      setOwnerQuadras((current) => [...createdCourts, ...current])
+      const publicCourts = createdCourts.filter((court) => (
+        court.ativa !== false && court.documentacao_local?.status === 'aprovado'
+      ))
+      setQuadras((current) => [...publicCourts, ...current])
+      const waitingReview = createdCourts.some((court) => court.documentacao_local?.status !== 'aprovado')
+      showToast(
+        waitingReview
+          ? 'Espaco enviado para analise documental.'
+          : createdCourts.length > 1
+            ? `${createdCourts.length} quadras cadastradas com sucesso.`
+            : 'Quadra cadastrada com sucesso.',
+      )
+      await loadRoleData()
+      return true
+>>>>>>> Stashed changes
     } catch (error) {
       showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCreateAdminSpace(form) {
+    setLoading(true)
+    try {
+      const response = await createAdminSpace(session.token, form)
+      const espaco = response.espaco
+      setAdminData((current) => ({
+        ...current,
+        quadras: [espaco, ...(current.quadras || []).filter((item) => item.id !== espaco.id)],
+      }))
+      await loadPublicCourts()
+      showToast(response.message || 'Espaco cadastrado com sucesso.')
+      return espaco
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleUpdateAdminSpace(quadra, form) {
+    setLoading(true)
+    try {
+      const response = await updateAdminSpace(session.token, quadra.id, form)
+      const espaco = response.espaco
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => item.id === espaco.id ? espaco : item),
+      }))
+      await loadPublicCourts()
+      showToast(response.message || 'Espaco atualizado com sucesso.')
+      return espaco
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleDeactivateAdminSpace(quadra, payload) {
+    setLoading(true)
+    try {
+      const response = await deactivateAdminSpace(session.token, quadra.id, payload)
+      const espaco = response.espaco
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => item.id === espaco.id ? espaco : item),
+      }))
+      await loadPublicCourts()
+      showToast(response.message || 'Periodo de desativacao salvo.')
+      return espaco
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleClearAdminSpaceDeactivation(quadra) {
+    setLoading(true)
+    try {
+      const response = await clearAdminSpaceDeactivation(session.token, quadra.id)
+      const espaco = response.espaco
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => item.id === espaco.id ? espaco : item),
+      }))
+      await loadPublicCourts()
+      showToast(response.message || 'Desativacao removida.')
+      return espaco
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleDeleteAdminSpace(quadra) {
+    setLoading(true)
+    try {
+      const response = await deleteAdminSpace(session.token, quadra.id)
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).filter((item) => item.id !== quadra.id),
+      }))
+      setQuadras((current) => current.filter((item) => item.id !== quadra.id))
+      showToast(response.message || 'Espaco excluido permanentemente.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
     } finally {
       setLoading(false)
     }
@@ -237,7 +749,26 @@ export function usePlayArenaApp() {
           ? { ...item, horarios_disponiveis: [...(item.horarios_disponiveis || []), horario] }
           : item
       )))
+<<<<<<< Updated upstream
       showToast('Horario adicionado.')
+=======
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => (
+          item.id === quadra.id ? mergeCourtSchedule(item, horario) : item
+        )),
+      }))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? mergeCourtSchedule(item, horario) : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id ? mergeCourtSchedule(current, horario) : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id ? mergeCourtSchedule(current, horario) : current
+      ))
+      showToast(alreadyExisted ? 'Preco do horario atualizado.' : 'Horário adicionado.')
+>>>>>>> Stashed changes
     } catch (error) {
       showToast(error.message)
     }
@@ -245,10 +776,141 @@ export function usePlayArenaApp() {
 
   async function handleStatusReservation(reserva, status) {
     try {
+<<<<<<< Updated upstream
       await updateReservationStatus(session.token, reserva.id, status)
       setOwnerReservas((current) => current.map((item) => (
         item.id === reserva.id ? { ...item, status } : item
       )))
+=======
+      await deleteSchedule(session.token, quadra.id, horario.id)
+      setOwnerQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? removeCourtSchedule(item, horario) : item
+      )))
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => (
+          item.id === quadra.id ? removeCourtSchedule(item, horario) : item
+        )),
+      }))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? removeCourtSchedule(item, horario) : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id ? removeCourtSchedule(current, horario) : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id ? removeCourtSchedule(current, horario) : current
+      ))
+      showToast('Horario removido.')
+    } catch (error) {
+      showToast(error.message)
+    }
+  }
+
+  async function handleUpdateScheduleAvailability(quadra, horario, disponivel) {
+    try {
+      const savedSchedule = await updateScheduleAvailability(session.token, quadra.id, horario.id, disponivel)
+      const updatedSchedule = {
+        ...horario,
+        ...savedSchedule,
+        disponivel,
+      }
+
+      setOwnerQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? setCourtScheduleAvailability(item, updatedSchedule, disponivel) : item
+      )))
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => (
+          item.id === quadra.id ? setCourtScheduleAvailability(item, updatedSchedule, disponivel) : item
+        )),
+      }))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id
+          ? disponivel
+            ? mergeCourtSchedule(item, updatedSchedule)
+            : removeCourtSchedule(item, horario)
+          : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id
+          ? disponivel
+            ? mergeCourtSchedule(current, updatedSchedule)
+            : removeCourtSchedule(current, horario)
+          : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id
+          ? disponivel
+            ? mergeCourtSchedule(current, updatedSchedule)
+            : removeCourtSchedule(current, horario)
+          : current
+      ))
+      showToast(disponivel ? 'Horario reativado.' : 'Horario inativado.')
+    } catch (error) {
+      showToast(error.message)
+    }
+  }
+
+  async function handleUpdateCourt(quadra, payload) {
+    try {
+      const updatedCourt = await updateCourt(session.token, quadra, payload)
+      setOwnerQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? updatedCourt : item
+      )))
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).map((item) => (
+          item.id === quadra.id ? updatedCourt : item
+        )),
+      }))
+      setQuadras((current) => current.map((item) => (
+        item.id === quadra.id ? updatedCourt : item
+      )))
+      setSelectedCourt((current) => (
+        current?.id === quadra.id ? updatedCourt : current
+      ))
+      setReservationCourt((current) => (
+        current?.id === quadra.id ? updatedCourt : current
+      ))
+      showToast('Quadra atualizada.')
+      return updatedCourt
+    } catch (error) {
+      showToast(error.message)
+      return false
+    }
+  }
+
+  async function handleDeleteCourt(quadra) {
+    try {
+      await deleteCourt(session.token, quadra.id)
+      setOwnerQuadras((current) => current.filter((item) => item.id !== quadra.id))
+      setAdminData((current) => ({
+        ...current,
+        quadras: (current.quadras || []).filter((item) => item.id !== quadra.id),
+      }))
+      setQuadras((current) => current.filter((item) => item.id !== quadra.id))
+      showToast('Anúncio excluído.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    }
+  }
+
+  async function handleStatusReservation(reserva, status, payload = {}) {
+    try {
+      let updatedReserva = { ...reserva, status }
+
+      if (status === 'cancelada') {
+        updatedReserva = await cancelReservation(session.token, reserva.id, payload)
+      } else {
+        updatedReserva = await updateReservationStatus(session.token, reserva.id, status)
+      }
+      setOwnerReservas((current) => sortReservations(current.map((item) => (
+        item.id === reserva.id ? { ...item, ...updatedReserva } : item
+      ))))
+>>>>>>> Stashed changes
       setAdminData((current) => ({
         ...current,
         reservas: (current.reservas || []).map((item) => (
@@ -261,18 +923,68 @@ export function usePlayArenaApp() {
     }
   }
 
-  async function handleUserStatus(account, status) {
+  async function handleBlockUserTemporarily(account, payload) {
+    setLoading(true)
     try {
-      await updateUserStatus(session.token, account.id, status)
+      const response = await blockUserTemporarily(session.token, account.id, payload)
+      const usuario = response.usuario
       setAdminData((current) => ({
         ...current,
         usuarios: (current.usuarios || []).map((item) => (
-          item.id === account.id ? { ...item, status } : item
+          item.id === account.id ? usuario : item
         )),
       }))
-      showToast('Usuario atualizado.')
+      showToast(response.message || 'Bloqueio temporario salvo com sucesso.')
+      return usuario
     } catch (error) {
       showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleClearUserTemporaryBlock(account) {
+    setLoading(true)
+    try {
+      const response = await clearUserTemporaryBlock(session.token, account.id)
+      const usuario = response.usuario
+      setAdminData((current) => ({
+        ...current,
+        usuarios: (current.usuarios || []).map((item) => (
+          item.id === account.id ? usuario : item
+        )),
+      }))
+      showToast(response.message || 'Bloqueio temporario removido.')
+      return usuario
+    } catch (error) {
+      showToast(error.message)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleBanUser(account, motivo) {
+    setLoading(true)
+    try {
+      const response = await banUser(session.token, account.id, motivo)
+      setAdminData((current) => ({
+        ...current,
+        indicadores: {
+          ...(current.indicadores || {}),
+          totalUsuarios: Math.max(Number(current.indicadores?.totalUsuarios || 0) - 1, 0),
+        },
+        usuarios: (current.usuarios || []).filter((item) => item.id !== account.id),
+        reservas: (current.reservas || []).filter((item) => item.usuario_id !== account.id),
+      }))
+      showToast(response.message || 'Usuario banido e excluido permanentemente.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -285,30 +997,96 @@ export function usePlayArenaApp() {
           item.id === account.id ? { ...item, status_aprovacao: statusAprovacao } : item
         )),
       }))
-      showToast('Proprietario atualizado.')
+      showToast('Proprietário atualizado.')
     } catch (error) {
       showToast(error.message)
+    }
+  }
+
+  async function handleReviewDocumentation(documentacao, status, motivo_reprovacao = '') {
+    try {
+      const updatedDocumentation = await reviewDocumentation(session.token, documentacao.id, {
+        status,
+        motivo_reprovacao,
+      })
+      const persistedStatus = updatedDocumentation.status
+
+      setAdminData((current) => ({
+        ...current,
+        documentacoes: (current.documentacoes || []).map((item) => (
+          item.id === documentacao.id ? updatedDocumentation : item
+        )),
+        quadras: (current.quadras || []).map((quadra) => (
+          quadra.documentacao_local_id === documentacao.id
+            ? { ...quadra, ativa: persistedStatus === 'aprovado', documentacao_local: updatedDocumentation }
+            : quadra
+        )),
+      }))
+      await Promise.all([
+        loadRoleData(session, { silent: true }),
+        loadPublicCourts(),
+      ])
+      showToast(persistedStatus === 'aprovado' ? 'Documentacao aprovada.' : 'Documentacao reprovada.')
+      return true
+    } catch (error) {
+      showToast(error.message)
+      return false
     }
   }
 
   return {
     activeView,
     adminData,
+    handleBanUser,
+    handleBlockUserTemporarily,
     handleCancelReservation,
+    handleChangeAdminPassword,
+    handleClearAdminSpaceDeactivation,
+    handleClearUserTemporaryBlock,
+    handleConfirmRegistration,
+    handleCreateAdmin,
+    handleCreateAdminSpace,
     handleCreateCourt,
     handleCreateSchedule,
+<<<<<<< Updated upstream
+=======
+    handleDeleteAccount,
+    handleDeleteAdminSpace,
+    handleDeleteSchedule,
+    handleDeleteCourt,
+>>>>>>> Stashed changes
     handleLogin,
     handleLogout,
+    handleMarkAllNotificationsRead,
+    handleMarkNotificationRead,
     handleOwnerApproval,
     handleRegister,
+    handleReviewDocumentation,
+    handleResendRegistrationCode,
+    handleRequestPasswordReset,
+    handleResetPassword,
     handleReservation,
     handleStatusReservation,
+<<<<<<< Updated upstream
     handleUserStatus,
+=======
+    handleDeactivateAdminSpace,
+    handleUpdateAdminSpace,
+    handleUpdateCourt,
+    handleUpdateProfile,
+    handleUpdateScheduleAvailability,
+    handleVerifyPasswordResetCode,
+>>>>>>> Stashed changes
     lastReservation,
     loading,
+    loadNotifications,
     navItems,
+    notifications,
+    notificationsLoading,
+    notificationUnreadCount,
     openCourt,
     ownerQuadras,
+    ownerDocumentacoes,
     ownerReservas,
     quadras,
     reservationCourt,

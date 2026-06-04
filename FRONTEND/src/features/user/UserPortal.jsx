@@ -5,6 +5,7 @@ import { MapView } from '../map/MapView'
 import { ProfileView } from '../profile/ProfileView'
 import { SettingsView } from '../profile/SettingsView'
 import { ReservationList } from '../reservations/ReservationList'
+import { SupportView } from '../support/SupportView'
 
 export function UserPortal({
   activeView,
@@ -15,8 +16,12 @@ export function UserPortal({
   setSearchQuery,
   selectedCourt,
   onOpenCourt,
+  onOwnerSignup,
   onReserve,
   onCancelReservation,
+  onDeleteAccount,
+  onUpdateProfile,
+  loading,
   session,
 }) {
   if (activeView === 'buscar') {
@@ -45,8 +50,12 @@ export function UserPortal({
     return <MapView quadras={quadras} onOpenCourt={onOpenCourt} />
   }
 
+  if (activeView === 'suporte') {
+    return <SupportView />
+  }
+
   if (activeView === 'perfil') {
-    return <ProfileView session={session} />
+    return <ProfileView session={session} loading={loading} onDeleteAccount={onDeleteAccount} onUpdateProfile={onUpdateProfile} />
   }
 
   if (activeView === 'configuracoes') {
@@ -56,7 +65,9 @@ export function UserPortal({
   return (
     <HomeView
       quadras={quadras}
+      onNavigate={setActiveView}
       onOpenCourt={onOpenCourt}
+      onOwnerSignup={onOwnerSignup}
       onSearch={(query) => {
         setSearchQuery(query)
         setActiveView('buscar')

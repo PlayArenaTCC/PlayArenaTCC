@@ -12,7 +12,7 @@ async function syncDatabase() {
   await sequelize.sync({ force, alter });
 
   console.log('Tabelas sincronizadas com sucesso.');
-  console.log('Tabelas: usuarios, proprietarios, quadras, horarios_disponiveis, reservas, administradores.');
+  console.log('Tabelas: usuarios, proprietarios, quadras, horarios_disponiveis, reservas, notificacoes, administradores, logs_administrativos, cadastros_pendentes, documentacoes_locais, recuperacoes_senha.');
 }
 
 syncDatabase()

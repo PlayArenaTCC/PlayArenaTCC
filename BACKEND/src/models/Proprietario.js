@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(20),
       allowNull: true,
     },
+    foto_perfil_url: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     status_aprovacao: {
       type: DataTypes.ENUM('pendente', 'aprovado', 'reprovado'),
       allowNull: false,
@@ -54,6 +58,10 @@ module.exports = (sequelize, DataTypes) => {
     Proprietario.hasMany(models.Quadra, {
       foreignKey: 'proprietario_id',
       as: 'quadras',
+    });
+    Proprietario.hasMany(models.DocumentacaoLocal, {
+      foreignKey: 'proprietario_id',
+      as: 'documentacoes_locais',
     });
   };
 

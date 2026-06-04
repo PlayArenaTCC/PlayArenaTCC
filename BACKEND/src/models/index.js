@@ -9,6 +9,11 @@ const Quadra = require('./Quadra')(sequelize, DataTypes);
 const HorarioDisponivel = require('./HorarioDisponivel')(sequelize, DataTypes);
 const Reserva = require('./Reserva')(sequelize, DataTypes);
 const Administrador = require('./Administrador')(sequelize, DataTypes);
+const CadastroPendente = require('./CadastroPendente')(sequelize, DataTypes);
+const DocumentacaoLocal = require('./DocumentacaoLocal')(sequelize, DataTypes);
+const RecuperacaoSenha = require('./RecuperacaoSenha')(sequelize, DataTypes);
+const Notificacao = require('./Notificacao')(sequelize, DataTypes);
+const LogAdministrativo = require('./LogAdministrativo')(sequelize, DataTypes);
 
 const models = {
   Usuario,
@@ -17,6 +22,11 @@ const models = {
   HorarioDisponivel,
   Reserva,
   Administrador,
+  CadastroPendente,
+  DocumentacaoLocal,
+  RecuperacaoSenha,
+  Notificacao,
+  LogAdministrativo,
 };
 
 Object.values(models).forEach((model) => {

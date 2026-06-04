@@ -1,32 +1,65 @@
-const { Op } = require('sequelize');
+const { Op, literal } = require('sequelize');
 
 const {
+  DocumentacaoLocal,
   HorarioDisponivel,
   Proprietario,
   Quadra,
   Reserva,
   Usuario,
+  sequelize,
 } = require('../models');
+const notificacaoService = require('./notificacaoService');
+const {
+  isCourtEffectivelyActive,
+  isCourtUnavailableForSlot,
+} = require('./quadraService');
 const { HttpError } = require('../utils/http');
 
+<<<<<<< Updated upstream
 function reservationIncludes() {
+=======
+const ACTIVE_RESERVATION_STATUSES = ['pendente', 'confirmada'];
+const RESERVATION_ORDER = [
+  [literal(`
+    CASE
+      WHEN "Reserva"."status" IN ('pendente', 'confirmada') THEN 0
+      WHEN "Reserva"."status" = 'concluida' THEN 1
+      WHEN "Reserva"."status" = 'cancelada' THEN 2
+      ELSE 3
+    END
+  `), 'ASC'],
+  ['data_reserva', 'ASC'],
+  ['hora_inicio', 'ASC'],
+  ['createdAt', 'DESC'],
+];
+
+function reservationIncludes({ ownerId } = {}) {
+  const quadraInclude = {
+    model: Quadra,
+    as: 'quadra',
+    include: [
+      {
+        model: Proprietario,
+        as: 'proprietario',
+        attributes: ['id', 'nome_responsavel', 'nome_empresa', 'telefone'],
+      },
+    ],
+  };
+
+  if (ownerId) {
+    quadraInclude.where = { proprietario_id: ownerId };
+    quadraInclude.required = true;
+  }
+
+>>>>>>> Stashed changes
   return [
     {
       model: Usuario,
       as: 'usuario',
       attributes: ['id', 'nome', 'email', 'telefone'],
     },
-    {
-      model: Quadra,
-      as: 'quadra',
-      include: [
-        {
-          model: Proprietario,
-          as: 'proprietario',
-          attributes: ['id', 'nome_responsavel', 'nome_empresa', 'telefone'],
-        },
-      ],
-    },
+    quadraInclude,
     {
       model: HorarioDisponivel,
       as: 'horario_disponivel',
@@ -48,7 +81,7 @@ async function findReservationOrThrow(id) {
   });
 
   if (!reserva) {
-    throw new HttpError(404, 'Reserva nao encontrada.');
+    throw new HttpError(404, 'Reserva não encontrada.');
   }
 
   return reserva;
@@ -87,6 +120,24 @@ async function createReservation(auth, {
 
   if (!quadra) {
     throw new HttpError(404, 'Quadra indisponivel ou inexistente.');
+  }
+
+  if (quadra.documentacao_local_id) {
+    const documentacao = await DocumentacaoLocal.findByPk(quadra.documentacao_local_id);
+
+    if (documentacao.status !== 'aprovado') {
+      throw new HttpError(403, 'Esta quadra ainda nao possui documentacao aprovada.');
+    }
+  } else {
+    throw new HttpError(403, 'Esta quadra ainda nao possui documentacao aprovada.');
+  }
+
+  if (!isCourtEffectivelyActive(quadra)) {
+    throw new HttpError(409, 'Este espaco esta inativo no momento.');
+  }
+
+  if (isCourtUnavailableForSlot(quadra, data_reserva, requestedStart, requestedEnd)) {
+    throw new HttpError(409, 'Este espaco esta inativo no periodo selecionado.');
   }
 
   const reservaExistente = await Reserva.findOne({
@@ -146,17 +197,15 @@ async function listUserReservations(userId) {
   return Reserva.findAll({
     where: { usuario_id: userId },
     include: reservationIncludes(),
-    order: [['data_reserva', 'DESC'], ['hora_inicio', 'DESC']],
+    order: RESERVATION_ORDER,
   });
 }
 
 async function listOwnerReservations(ownerId) {
-  const reservas = await Reserva.findAll({
-    include: reservationIncludes(),
-    order: [['data_reserva', 'DESC'], ['hora_inicio', 'DESC']],
+  return Reserva.findAll({
+    include: reservationIncludes({ ownerId }),
+    order: RESERVATION_ORDER,
   });
-
-  return reservas.filter((reserva) => reserva.quadra?.proprietario_id === ownerId);
 }
 
 async function listAllReservations() {
@@ -170,7 +219,7 @@ async function updateReservationStatus(auth, id, status) {
   const reserva = await findReservationOrThrow(id);
 
   if (!canChangeReservation(auth, reserva)) {
-    throw new HttpError(403, 'Voce nao pode alterar esta reserva.');
+    throw new HttpError(403, 'Você não pode alterar esta reserva.');
   }
 
   const statusPermitidos = ['pendente', 'confirmada', 'cancelada', 'concluida'];
@@ -188,16 +237,38 @@ async function cancelReservation(auth, id) {
   const reserva = await findReservationOrThrow(id);
 
   if (!canChangeReservation(auth, reserva)) {
-    throw new HttpError(403, 'Voce nao pode cancelar esta reserva.');
+    throw new HttpError(403, 'Você não pode cancelar esta reserva.');
   }
 
   if (reserva.status === 'concluida') {
-    throw new HttpError(400, 'Reservas concluidas nao podem ser canceladas.');
+    throw new HttpError(400, 'Reservas concluídas não podem ser canceladas.');
+  }
+
+  if (reserva.status === 'cancelada') {
+    throw new HttpError(400, 'Esta reserva já foi cancelada.');
   }
 
   reserva.status = 'cancelada';
+<<<<<<< Updated upstream
   await reserva.save();
   return reserva;
+=======
+  reserva.motivo_cancelamento = motivo;
+  reserva.cancelado_em = new Date();
+  reserva.cancelado_por_id = auth.id;
+  reserva.cancelado_por_perfil = auth.perfil;
+  reserva.cancelado_por_nome = getAuthDisplayName(auth);
+
+  await sequelize.transaction(async (transaction) => {
+    await reserva.save({ transaction });
+
+    if (auth.perfil === 'proprietario') {
+      await notificacaoService.createReservationCancelledNotification(reserva, { transaction });
+    }
+  });
+
+  return findReservationOrThrow(reserva.id);
+>>>>>>> Stashed changes
 }
 
 module.exports = {

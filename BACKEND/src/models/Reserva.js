@@ -92,6 +92,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'horario_disponivel_id',
       as: 'horario_disponivel',
     });
+    Reserva.hasMany(models.Notificacao, {
+      foreignKey: 'reservationId',
+      as: 'notificacoes',
+    });
   };
 
   return Reserva;

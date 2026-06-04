@@ -3,12 +3,25 @@ import { fallbackCourtImage, sportLabels } from '../../data/demoData'
 import { formatPlainCurrency } from '../../utils/formatters'
 
 export function CourtCard({ quadra, onOpen, featured = false }) {
+<<<<<<< Updated upstream
+=======
+  const originalPrice = getOriginalPrice(quadra)
+  const className = [
+    'court-card',
+    featured ? 'is-featured' : '',
+    quadra.ativa === false ? 'is-inactive' : '',
+  ].filter(Boolean).join(' ')
+
+>>>>>>> Stashed changes
   return (
-    <article className={featured ? 'court-card is-featured' : 'court-card'} onClick={() => onOpen(quadra)}>
+    <article className={className} onClick={() => onOpen(quadra)}>
       <div className="court-card-media">
         <img src={quadra.imagem_url} alt={quadra.nome} onError={(event) => { event.currentTarget.src = fallbackCourtImage }} />
         <div className="media-shade" />
         <span className={`sport-badge sport-${quadra.modalidade}`}>{sportLabels[quadra.modalidade] || quadra.modalidade}</span>
+        <span className={quadra.ativa === false ? 'court-availability-badge is-inactive' : 'court-availability-badge is-active'}>
+          {quadra.ativa === false ? 'Inativo' : 'Ativo'}
+        </span>
         {featured && <span className="featured-badge">Destaque</span>}
       </div>
       <div className="court-card-body">

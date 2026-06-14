@@ -9,6 +9,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(120),
       allowNull: false,
     },
+    cpf: {
+      type: DataTypes.STRING(11),
+      allowNull: true,
+      unique: true,
+      validate: {
+        is: /^\d{11}$/,
+      },
+    },
     email: {
       type: DataTypes.STRING(160),
       allowNull: false,
@@ -20,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
     senha_hash: {
       type: DataTypes.STRING(255),
       allowNull: false,
+    },
+    telefone: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
     },
     nivel_acesso: {
       type: DataTypes.ENUM('admin', 'super_admin'),
@@ -36,6 +48,13 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
     underscored: true,
   });
+
+  Administrador.associate = (models) => {
+    Administrador.hasMany(models.LogAdministrativo, {
+      foreignKey: 'administrador_id',
+      as: 'logs_administrativos',
+    });
+  };
 
   return Administrador;
 };

@@ -1,34 +1,42 @@
 import { useMemo, useState } from 'react'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
-import { sportLabels } from '../../data/demoData'
+import { sportLabels, sportOptions } from '../../data/demoData'
+import { formatCurrency } from '../../utils/formatters'
 import { CourtCard } from './CourtCard'
 
 export function SearchView({ initialQuery, quadras, onOpenCourt }) {
   const [query, setQuery] = useState(initialQuery)
   const [modalidade, setModalidade] = useState('todos')
-  const [cidade, setCidade] = useState('')
   const [precoMax, setPrecoMax] = useState(500)
 
   const modalidades = useMemo(() => {
-    const values = new Set(quadras.map((quadra) => quadra.modalidade).filter(Boolean))
-    return ['todos', ...values]
+    const values = new Set([
+      ...sportOptions.map((sport) => sport.value),
+      ...quadras.map((quadra) => quadra.modalidade).filter(Boolean),
+    ])
+    const sortedValues = Array.from(values).sort((first, second) => {
+      const firstLabel = sportLabels[first] || first
+      const secondLabel = sportLabels[second] || second
+
+      return firstLabel.localeCompare(secondLabel, 'pt-BR')
+    })
+
+    return ['todos', ...sortedValues]
   }, [quadras])
 
   const filtered = quadras.filter((quadra) => {
-    const haystack = `${quadra.nome} ${quadra.endereco} ${quadra.bairro} ${quadra.cidade} ${quadra.modalidade}`.toLowerCase()
+    const haystack = `${quadra.nome} ${quadra.endereco} ${quadra.numero || ''} ${quadra.cep || ''} ${quadra.bairro} ${quadra.cidade} ${quadra.modalidade}`.toLowerCase()
     const matchQuery = !query || haystack.includes(query.toLowerCase())
     const matchMode = modalidade === 'todos' || quadra.modalidade === modalidade
-    const matchCity = !cidade || quadra.cidade?.toLowerCase().includes(cidade.toLowerCase())
     const matchPrice = Number(quadra.preco_hora || 0) <= Number(precoMax)
-    return matchQuery && matchMode && matchCity && matchPrice
+    return matchQuery && matchMode && matchPrice
   })
 
-  const activeFilters = (modalidade !== 'todos' ? 1 : 0) + (cidade ? 1 : 0) + (precoMax < 500 ? 1 : 0)
+  const activeFilters = (modalidade !== 'todos' ? 1 : 0) + (precoMax < 500 ? 1 : 0)
 
   function clearFilters() {
     setQuery('')
     setModalidade('todos')
-    setCidade('')
     setPrecoMax(500)
   }
 
@@ -44,10 +52,6 @@ export function SearchView({ initialQuery, quadras, onOpenCourt }) {
           </div>
         </label>
         <label className="field">
-          <span>Cidade</span>
-          <input value={cidade} onChange={(event) => setCidade(event.target.value)} placeholder="Digite a cidade..." />
-        </label>
-        <label className="field">
           <span>Tipo de Esporte</span>
           <select value={modalidade} onChange={(event) => setModalidade(event.target.value)}>
             {modalidades.map((item) => (
@@ -58,7 +62,7 @@ export function SearchView({ initialQuery, quadras, onOpenCourt }) {
           </select>
         </label>
         <label className="field price-range">
-          <span>Faixa de Preço: R$ 0 - R$ {precoMax}/hora</span>
+          <span>Faixa de Preço: {formatCurrency(0)} - {formatCurrency(precoMax)}/hora</span>
           <input type="range" min="0" max="500" step="10" value={precoMax} onChange={(event) => setPrecoMax(Number(event.target.value))} />
         </label>
         {activeFilters > 0 && (

@@ -27,6 +27,7 @@ async function seedDemo() {
 
   const usuario = await findOrCreateByEmail(Usuario, 'usuario@playarena.com', {
     nome: 'Joao Silva',
+    cpf: '12345678909',
     email: 'usuario@playarena.com',
     senha_hash,
     telefone: '(44) 99999-1000',
@@ -35,19 +36,28 @@ async function seedDemo() {
   const proprietario = await findOrCreateByEmail(Proprietario, 'proprietario@playarena.com', {
     nome_responsavel: 'Amanda Pereira',
     nome_empresa: 'Arena Integrada',
-    cpf_cnpj: '12345678000190',
+    cpf_cnpj: '12345678000195',
     email: 'proprietario@playarena.com',
     senha_hash,
     telefone: '(44) 99999-2000',
     status_aprovacao: 'aprovado',
   });
 
-  await findOrCreateByEmail(Administrador, 'admin@playarena.com', {
+  const administrador = await findOrCreateByEmail(Administrador, 'admin@playarena.com', {
     nome: 'Admin PlayArena',
+    cpf: '52998224725',
     email: 'admin@playarena.com',
     senha_hash,
+    telefone: '44 999991000',
     nivel_acesso: 'super_admin',
   });
+
+  if (!administrador.cpf || !administrador.telefone) {
+    await administrador.update({
+      cpf: administrador.cpf || '52998224725',
+      telefone: administrador.telefone || '44 999991000',
+    });
+  }
 
   const quadras = [
     {
@@ -56,29 +66,29 @@ async function seedDemo() {
       modalidade: 'futsal',
       endereco: 'Rua das Palmeiras, 1200',
       bairro: 'Centro',
-      cidade: 'Campo Mourao',
+      cidade: 'Campo Mourão',
       estado: 'PR',
       preco_hora: 90,
       imagem_url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=900&q=80',
     },
     {
       nome: 'Unespar Quadra',
-      descricao: 'Espaco poliesportivo para jogos coletivos e treinos semanais.',
+      descricao: 'Espaço poliesportivo para jogos coletivos e treinos semanais.',
       modalidade: 'poliesportiva',
       endereco: 'Av. Comendador Norberto Marcondes, 733',
       bairro: 'Jardim Cidade Nova',
-      cidade: 'Campo Mourao',
+      cidade: 'Campo Mourão',
       estado: 'PR',
       preco_hora: 75,
       imagem_url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=900&q=80',
     },
     {
-      nome: 'Arena Society Campo Mourao',
+      nome: 'Arena Society Campo Mourão',
       descricao: 'Campo society com grama sintetica, estacionamento e vestiarios.',
       modalidade: 'society',
-      endereco: 'Rua Harrison Jose Borges, 455',
+      endereco: 'Rua Harrison José Borges, 455',
       bairro: 'Centro',
-      cidade: 'Campo Mourao',
+      cidade: 'Campo Mourão',
       estado: 'PR',
       preco_hora: 120,
       imagem_url: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?auto=format&fit=crop&w=900&q=80',
@@ -123,8 +133,8 @@ async function seedDemo() {
   }
 
   console.log('Dados demo criados/atualizados.');
-  console.log(`Usuario: ${usuario.email} / ${senhaDemo}`);
-  console.log(`Proprietario: ${proprietario.email} / ${senhaDemo}`);
+  console.log(`Usuário: ${usuario.email} / ${senhaDemo}`);
+  console.log(`Proprietário: ${proprietario.email} / ${senhaDemo}`);
   console.log(`Admin: admin@playarena.com / ${senhaDemo}`);
 }
 

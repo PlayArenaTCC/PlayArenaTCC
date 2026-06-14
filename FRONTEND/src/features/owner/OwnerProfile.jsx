@@ -1,8 +1,27 @@
 import { BadgeCheck } from 'lucide-react'
 import { ProfileView } from '../profile/ProfileView'
 
-export function OwnerProfile({ session }) {
+const ownerApprovalLabels = {
+  aprovado: 'Perfil aprovado',
+  pendente: 'Perfil em análise',
+  reprovado: 'Perfil Reprovado',
+}
+
+function ownerApprovalTone(status) {
+  if (status === 'reprovado') {
+    return 'is-rejected'
+  }
+
+  if (status === 'pendente') {
+    return 'is-pending'
+  }
+
+  return 'is-approved'
+}
+
+export function OwnerProfile({ session, loading, onDeleteAccount, onUpdateProfile }) {
   const profile = session.usuario || {}
+  const approvalStatus = profile.status_aprovacao || 'pendente'
 
   return (
     <section className="screen-stack">
@@ -12,11 +31,11 @@ export function OwnerProfile({ session }) {
           <h1>Meu Perfil Empresarial</h1>
         </div>
       </div>
-      <div className="verified-banner">
+      <div className={`verified-banner ${ownerApprovalTone(approvalStatus)}`}>
         <BadgeCheck size={20} />
-        Perfil {profile.status_aprovacao || 'pendente'}
+        {ownerApprovalLabels[approvalStatus] || `Perfil ${approvalStatus}`}
       </div>
-      <ProfileView session={session} />
+      <ProfileView session={session} loading={loading} onDeleteAccount={onDeleteAccount} onUpdateProfile={onUpdateProfile} />
     </section>
   )
 }

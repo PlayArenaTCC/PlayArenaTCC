@@ -1,0 +1,1736 @@
+{
+  "config": {
+    "configFile": "D:\\Teste\\playarena v10\\frontend\\playwright.config.ts",
+    "rootDir": "D:/Teste/playarena v10/frontend/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/Teste/playarena v10/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "D:/Teste/playarena v10/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*setup\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/Teste/playarena v10/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/Teste/playarena v10/frontend/tests",
+        "testIgnore": [
+          "/.*setup\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/Teste/playarena v10/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "D:/Teste/playarena v10/frontend/tests",
+        "testIgnore": [
+          "/.*setup\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/Teste/playarena v10/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "D:/Teste/playarena v10/frontend/tests",
+        "testIgnore": [
+          "/.*setup\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "e2e\\playarena.setup.spec.ts",
+      "file": "e2e/playarena.setup.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "prepara massa visual Playwright",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 358,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "buffer": "4peHIGluamVjdGVkIGVudiAoMTQpIGZyb20gLi5cYmFja2VuZFwuZW52IC8vIHRpcDog4oyYIG92ZXJyaWRlIGV4aXN0aW5nIHsgb3ZlcnJpZGU6IHRydWUgfQo="
+                    },
+                    {
+                      "buffer": "4peHIGluamVjdGVkIGVudiAoMCkgZnJvbSAuZW52IC8vIHRpcDog4peIIHNlY3JldHMgZm9yIGFnZW50cyBbd3d3LmRvdGVudnguY29tXQo="
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-12T02:54:37.264Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cbbe686374efeda29274-89695dc832d22948a01c",
+          "file": "e2e/playarena.setup.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "e2e\\admin-flows.spec.ts",
+      "file": "e2e/admin-flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "fluxos visuais do administrador",
+          "file": "e2e/admin-flows.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "acompanha dashboard, documentos e espacos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3668,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:54:38.214Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-chromium\\attachments\\admin-dashboard-470f4da3ad49c2905c0c869d56283d923a451f27.png"
+                        },
+                        {
+                          "name": "admin-documentos",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-chromium\\attachments\\admin-documentos-e23342f6bcb1fbf1ae3814d3de2b15ec5338bc15.png"
+                        },
+                        {
+                          "name": "admin-espaco-horarios",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-chromium\\attachments\\admin-espaco-horarios-bef50aad4f3093de284f946449b2a9d4f035dbba.png"
+                        },
+                        {
+                          "name": "admin-modal-desativar-espaco",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-chromium\\attachments\\admin-modal-desativar-espaco-e8147d3341f882d2f7e607873464f5a873c710f2.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "06cd98f09960cd559432-8ca7e3e1d9486b313a01",
+              "file": "e2e/admin-flows.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "gerencia contas de teste sem alterar credenciais principais",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9314,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:54:42.196Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-usuarios-lista",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c8965-erar-credenciais-principais-chromium\\attachments\\admin-usuarios-lista-5f0606911a19b8674f29c0f3d0b93ad67429c597.png"
+                        },
+                        {
+                          "name": "admin-ban-temporario",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c8965-erar-credenciais-principais-chromium\\attachments\\admin-ban-temporario-2bfdc8ec5764cbd6f97be8a7954c3c895863628c.png"
+                        },
+                        {
+                          "name": "admin-proprietario-aprovado",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c8965-erar-credenciais-principais-chromium\\attachments\\admin-proprietario-aprovado-3c8be1b388742c731b630dd8a89d0eb93822b756.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "06cd98f09960cd559432-0f0bdd8cf78d71d8a840",
+              "file": "e2e/admin-flows.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "acompanha dashboard, documentos e espacos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5966,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:21.320Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-firefox\\attachments\\admin-dashboard-5c156aad869e41a17d8a5edeb54e5f11ced32165.png"
+                        },
+                        {
+                          "name": "admin-documentos",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-firefox\\attachments\\admin-documentos-dfab80d154074569b986584f4a5bf6069ab1e8bf.png"
+                        },
+                        {
+                          "name": "admin-espaco-horarios",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-firefox\\attachments\\admin-espaco-horarios-211301bddaea8b09d08b174ea5acbb81c8ce0829.png"
+                        },
+                        {
+                          "name": "admin-modal-desativar-espaco",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c2888-hboard-documentos-e-espacos-firefox\\attachments\\admin-modal-desativar-espaco-fbe8b86634f5af4d208a82d2bc2d5066794f6e58.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "06cd98f09960cd559432-a6346e2a04e972ef4a9c",
+              "file": "e2e/admin-flows.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "gerencia contas de teste sem alterar credenciais principais",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10291,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:27.922Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-usuarios-lista",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c8965-erar-credenciais-principais-firefox\\attachments\\admin-usuarios-lista-b4edcb38b8daed3567108a6763084810a0a84686.png"
+                        },
+                        {
+                          "name": "admin-ban-temporario",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c8965-erar-credenciais-principais-firefox\\attachments\\admin-ban-temporario-d0f261515211f234e5073eb4d5d211ab963b3835.png"
+                        },
+                        {
+                          "name": "admin-proprietario-aprovado",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-admin-flows-fluxos-vis-c8965-erar-credenciais-principais-firefox\\attachments\\admin-proprietario-aprovado-d994f3da9c4005c76f099be57e17319bbc5e89c8.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "06cd98f09960cd559432-25cd97f13ba8df79019c",
+              "file": "e2e/admin-flows.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "acompanha dashboard, documentos e espacos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3157,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:17.684Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "06cd98f09960cd559432-7d3239e6676bd65a22df",
+              "file": "e2e/admin-flows.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "gerencia contas de teste sem alterar credenciais principais",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4168,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:21.030Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "06cd98f09960cd559432-f153b1317e646d459a22",
+              "file": "e2e/admin-flows.spec.ts",
+              "line": 37,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e\\auth-and-access.spec.ts",
+      "file": "e2e/auth-and-access.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "autenticacao e acesso por perfil",
+          "file": "e2e/auth-and-access.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "usuario principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2588,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:54:51.562Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "usuario-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-0ba6f-rincipal-faz-login-e-logout-chromium\\attachments\\usuario-dashboard-2ec68cc9f8817e16552545dab342b548477deb44.png"
+                        },
+                        {
+                          "name": "usuario-logout",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-0ba6f-rincipal-faz-login-e-logout-chromium\\attachments\\usuario-logout-d3ea404884d5129c0044621a6f0d6fabb8331fc4.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-e7bada2bdc68f63c8f5b",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "proprietario principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1800,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:54:54.173Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "proprietario-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-e9bb3-rincipal-faz-login-e-logout-chromium\\attachments\\proprietario-dashboard-6e9573425c7bb0cc4dd3d7d8f6bd560124a49946.png"
+                        },
+                        {
+                          "name": "proprietario-logout",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-e9bb3-rincipal-faz-login-e-logout-chromium\\attachments\\proprietario-logout-33e01d375569e740bebf442d7756cd2f828e8e78.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-d202adf6d4399a996517",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "admin principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2251,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:54:56.013Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-ae918-rincipal-faz-login-e-logout-chromium\\attachments\\admin-dashboard-07fbccc1d85e6d674f1b0c11502eba3e1705ecb9.png"
+                        },
+                        {
+                          "name": "admin-logout",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-ae918-rincipal-faz-login-e-logout-chromium\\attachments\\admin-logout-05087e8c2e4dd1940c6b080c8f54c68e4f992097.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-ffc05bdda2724b956e20",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "tela de login cobre suporte, validacao e troca de tipo de cadastro",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1862,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:54:58.281Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "login-suporte",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-34281-e-troca-de-tipo-de-cadastro-chromium\\attachments\\login-suporte-4748e08732b6f82ce00cb605cf52bd1f5cce0be9.png"
+                        },
+                        {
+                          "name": "cadastro-proprietario",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-34281-e-troca-de-tipo-de-cadastro-chromium\\attachments\\cadastro-proprietario-75bd9a414f03878df984eb9ea8cee4e3880af5fa.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-acd926227980273d4f45",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "usuario principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3558,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:38.279Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "usuario-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-0ba6f-rincipal-faz-login-e-logout-firefox\\attachments\\usuario-dashboard-9ac8aff8fa22c4a4954058b4b43e60383287c5b6.png"
+                        },
+                        {
+                          "name": "usuario-logout",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-0ba6f-rincipal-faz-login-e-logout-firefox\\attachments\\usuario-logout-15ca1f4b6e7b9f4039e8fc7b2bd7bbb61bc1522e.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-b2372624b08271aba909",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "proprietario principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3146,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:41.863Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "proprietario-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-e9bb3-rincipal-faz-login-e-logout-firefox\\attachments\\proprietario-dashboard-4d99b5dd2f9b8916153421af4a5a6b49b0eab202.png"
+                        },
+                        {
+                          "name": "proprietario-logout",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-e9bb3-rincipal-faz-login-e-logout-firefox\\attachments\\proprietario-logout-dad3fce55c8eecc8bb41fc8fe15791b36df2ed78.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-a75ed4cc8410eacfe636",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "admin principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3061,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:45.039Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-ae918-rincipal-faz-login-e-logout-firefox\\attachments\\admin-dashboard-29cce13c1bb9b54f22620f7e0f970394df222f5d.png"
+                        },
+                        {
+                          "name": "admin-logout",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-ae918-rincipal-faz-login-e-logout-firefox\\attachments\\admin-logout-ac9d4b4896a54947c806abdb78025eb296150077.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-a997fe4a9bfaf914e469",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "tela de login cobre suporte, validacao e troca de tipo de cadastro",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3335,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:48.133Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "login-suporte",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-34281-e-troca-de-tipo-de-cadastro-firefox\\attachments\\login-suporte-f2bd7556fdcb032d4bbe7daa8338af6ee3edb88b.png"
+                        },
+                        {
+                          "name": "cadastro-proprietario",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-auth-and-access-autent-34281-e-troca-de-tipo-de-cadastro-firefox\\attachments\\cadastro-proprietario-db53bb74285cc024115c13d407a70fff2d579eda.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-b12493838b585ad7530b",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "usuario principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3117,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:25.268Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-299c25f3afc6967ce0d1",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "proprietario principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3482,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:28.401Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-8f963a0c3a1947ce0184",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "admin principal faz login e logout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3607,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:31.915Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-20cea5e8e6c6cefb0545",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 7,
+              "column": 5
+            },
+            {
+              "title": "tela de login cobre suporte, validacao e troca de tipo de cadastro",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5207,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:35.552Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2331a927fc89e0fb886-77ba2f66515181aeb0d0",
+              "file": "e2e/auth-and-access.spec.ts",
+              "line": 16,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e\\home.spec.ts",
+      "file": "e2e/home.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "pagina inicial abre e titulo e PLAYARENA",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 788,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-12T02:55:00.195Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff75c9407109e0c193c2-363cd86dd39b666d7c82",
+          "file": "e2e/home.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "pagina inicial abre e titulo e PLAYARENA",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1391,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-12T02:55:51.548Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff75c9407109e0c193c2-87a8cfd37c787b30b731",
+          "file": "e2e/home.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "pagina inicial abre e titulo e PLAYARENA",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1184,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-12T02:56:40.814Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff75c9407109e0c193c2-11bf345b17c6b6b3fc05",
+          "file": "e2e/home.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "e2e\\owner-flows.spec.ts",
+      "file": "e2e/owner-flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "fluxos visuais do proprietario",
+          "file": "e2e/owner-flows.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "gerencia espaco, adiciona horario e valida codigo de reserva",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7754,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:01.041Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "proprietario-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-chromium\\attachments\\proprietario-dashboard-11a1f546c72c774840f413fdcf04d2168c6f6e96.png"
+                        },
+                        {
+                          "name": "proprietario-gerenciar-horarios",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-chromium\\attachments\\proprietario-gerenciar-horarios-ef3f24d4dfc525b3c1fa7735d18f4198c80606fd.png"
+                        },
+                        {
+                          "name": "proprietario-reservas",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-chromium\\attachments\\proprietario-reservas-1f1473c9c1bfcc65ca0c969d84796b29c2cfa549.png"
+                        },
+                        {
+                          "name": "proprietario-validar-codigo",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-chromium\\attachments\\proprietario-validar-codigo-c9b6ff301dc3ff3d4dac9d98a6d974b9024c8ef9.png"
+                        },
+                        {
+                          "name": "proprietario-codigo-validado",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-chromium\\attachments\\proprietario-codigo-validado-7cc378cb9a26a85e1214e18b5e84754cf622cd61.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a49f2f054857b5a29626-a8d4dbfcd1663c51bf30",
+              "file": "e2e/owner-flows.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "abre suporte, perfil e configuracoes do proprietario",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1834,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:08.813Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "proprietario-suporte",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-253e5-nfiguracoes-do-proprietario-chromium\\attachments\\proprietario-suporte-dd658597a615fb3cf8c9627c9b19cb4caf578cae.png"
+                        },
+                        {
+                          "name": "proprietario-configuracoes",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-253e5-nfiguracoes-do-proprietario-chromium\\attachments\\proprietario-configuracoes-9e9d44701b1360ca888c0333d47034f57c52fe71.png"
+                        },
+                        {
+                          "name": "proprietario-perfil",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-253e5-nfiguracoes-do-proprietario-chromium\\attachments\\proprietario-perfil-cc2a8acb15d5493f53b582db93eac1556b084048.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a49f2f054857b5a29626-36afedc40bff40ecaa12",
+              "file": "e2e/owner-flows.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "gerencia espaco, adiciona horario e valida codigo de reserva",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8559,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:52.994Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "proprietario-dashboard",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-firefox\\attachments\\proprietario-dashboard-f31cb5e373b4a26af0fc709728869310f942dd53.png"
+                        },
+                        {
+                          "name": "proprietario-gerenciar-horarios",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-firefox\\attachments\\proprietario-gerenciar-horarios-36c84613c9387bba2d810f18a8384ce2e2563452.png"
+                        },
+                        {
+                          "name": "proprietario-reservas",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-firefox\\attachments\\proprietario-reservas-d141bbfacd2ca841168e0c805f656e95cf8c5f36.png"
+                        },
+                        {
+                          "name": "proprietario-validar-codigo",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-firefox\\attachments\\proprietario-validar-codigo-53322c2148d1b942f8ca8ffcd3d1b8f40b970ecd.png"
+                        },
+                        {
+                          "name": "proprietario-codigo-validado",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-f88c7--e-valida-codigo-de-reserva-firefox\\attachments\\proprietario-codigo-validado-724e4c202a3f4a5b6f3abbe5f9c3f89f7dc89602.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a49f2f054857b5a29626-413c4fbf2ebc597f4704",
+              "file": "e2e/owner-flows.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "abre suporte, perfil e configuracoes do proprietario",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2700,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:01.574Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "proprietario-suporte",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-253e5-nfiguracoes-do-proprietario-firefox\\attachments\\proprietario-suporte-7bc943140b7bf7e1973787528087e128b2c7ecf4.png"
+                        },
+                        {
+                          "name": "proprietario-configuracoes",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-253e5-nfiguracoes-do-proprietario-firefox\\attachments\\proprietario-configuracoes-6edf960013f13aff956ddc584c379b008658ceab.png"
+                        },
+                        {
+                          "name": "proprietario-perfil",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-owner-flows-fluxos-vis-253e5-nfiguracoes-do-proprietario-firefox\\attachments\\proprietario-perfil-f6049d14e0a742b952d49889b1c28d7040803629.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a49f2f054857b5a29626-da7ec27e39b6a7d49707",
+              "file": "e2e/owner-flows.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "gerencia espaco, adiciona horario e valida codigo de reserva",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9516,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:42.059Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a49f2f054857b5a29626-c60208b8049eb4fe1f33",
+              "file": "e2e/owner-flows.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "abre suporte, perfil e configuracoes do proprietario",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3448,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:51.595Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a49f2f054857b5a29626-2bfc024824bb8cf85b7c",
+              "file": "e2e/owner-flows.spec.ts",
+              "line": 51,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e\\user-flows.spec.ts",
+      "file": "e2e/user-flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "fluxos visuais do usuario",
+          "file": "e2e/user-flows.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "busca quadra, cria reserva, consulta detalhes e cancela",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7861,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:10.697Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "usuario-busca-quadra",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-busca-quadra-3b237112a5a9775575887d877b457642fedc0942.png"
+                        },
+                        {
+                          "name": "usuario-detalhe-quadra",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-detalhe-quadra-d31559deaea5916ed637f2dbbc9e5691d708de78.png"
+                        },
+                        {
+                          "name": "usuario-modal-reserva",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-modal-reserva-383e2285081ecc47b8cb1bcaec28119d778371cd.png"
+                        },
+                        {
+                          "name": "usuario-revisao-reserva",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-revisao-reserva-cc777c10eb16ce0d8b3baba6ef6b6ee397f48da5.png"
+                        },
+                        {
+                          "name": "usuario-reserva-confirmada",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-reserva-confirmada-ea2943d1478e9cf751ca087e3214edaedd2889d5.png"
+                        },
+                        {
+                          "name": "usuario-detalhes-reserva",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-detalhes-reserva-ce0edb290b6956c7171f83789ee58790961af937.png"
+                        },
+                        {
+                          "name": "usuario-reserva-cancelada",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-chromium\\attachments\\usuario-reserva-cancelada-70a6f07901e5efa5fde8cd372add69e1df095a5a.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "437198bdcca9eee779ff-7f47f0e9734811fd9a35",
+              "file": "e2e/user-flows.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "navega por mapa, suporte e configuracoes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1946,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:55:18.577Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "usuario-mapa",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-84432-apa-suporte-e-configuracoes-chromium\\attachments\\usuario-mapa-e552c9f2c478d181a95490e4020b2fcfd4bd6b42.png"
+                        },
+                        {
+                          "name": "usuario-suporte",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-84432-apa-suporte-e-configuracoes-chromium\\attachments\\usuario-suporte-3cf8d36555b67bb52f2c5f20d24395f7a4e35b74.png"
+                        },
+                        {
+                          "name": "usuario-configuracoes",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-84432-apa-suporte-e-configuracoes-chromium\\attachments\\usuario-configuracoes-ace91ec0d8dd94918af89ad34c4ce450d7e7dcf1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "437198bdcca9eee779ff-6962112102680edff2e4",
+              "file": "e2e/user-flows.spec.ts",
+              "line": 58,
+              "column": 3
+            },
+            {
+              "title": "busca quadra, cria reserva, consulta detalhes e cancela",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9140,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:04.328Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "usuario-busca-quadra",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-busca-quadra-3bf304b8b0af85f1b45255a811d54a59b1e37e28.png"
+                        },
+                        {
+                          "name": "usuario-detalhe-quadra",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-detalhe-quadra-6b0e2adbc0ea27229fe8b1eb204a56f69eb539b1.png"
+                        },
+                        {
+                          "name": "usuario-modal-reserva",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-modal-reserva-8c98f31cab875458af8465512cf92589091b57ba.png"
+                        },
+                        {
+                          "name": "usuario-revisao-reserva",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-revisao-reserva-3b8b192939274e94ea52186ba14576f3acfc1a5d.png"
+                        },
+                        {
+                          "name": "usuario-reserva-confirmada",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-reserva-confirmada-3d1d3ec2bce5ac73bd9a2e3d40dd94889bfc4f35.png"
+                        },
+                        {
+                          "name": "usuario-detalhes-reserva",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-detalhes-reserva-be867e34c2011c35c475be24d307b62e598487ea.png"
+                        },
+                        {
+                          "name": "usuario-reserva-cancelada",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-77807-consulta-detalhes-e-cancela-firefox\\attachments\\usuario-reserva-cancelada-0010a74d649954b446b7a6ced25b0d924b2b52de.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "437198bdcca9eee779ff-1170cde7d9ff68258e17",
+              "file": "e2e/user-flows.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "navega por mapa, suporte e configuracoes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2933,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:13.492Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "usuario-mapa",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-84432-apa-suporte-e-configuracoes-firefox\\attachments\\usuario-mapa-2201512be288369f10e5e81be8f2f74358a00c5e.png"
+                        },
+                        {
+                          "name": "usuario-suporte",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-84432-apa-suporte-e-configuracoes-firefox\\attachments\\usuario-suporte-0978f393e6972ed390cfaed0b241f6d2ab5936ce.png"
+                        },
+                        {
+                          "name": "usuario-configuracoes",
+                          "contentType": "image/png",
+                          "path": "D:\\Teste\\playarena v10\\frontend\\test-results\\e2e-user-flows-fluxos-visu-84432-apa-suporte-e-configuracoes-firefox\\attachments\\usuario-configuracoes-023d9141d7dd33c82375cc72fa1084f0cf89153c.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "437198bdcca9eee779ff-73dd6a959e960139d5bb",
+              "file": "e2e/user-flows.spec.ts",
+              "line": 58,
+              "column": 3
+            },
+            {
+              "title": "busca quadra, cria reserva, consulta detalhes e cancela",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8972,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:56:55.104Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "437198bdcca9eee779ff-77fd71ce82ad10ce3d46",
+              "file": "e2e/user-flows.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "navega por mapa, suporte e configuracoes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3743,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-12T02:57:04.090Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "437198bdcca9eee779ff-08a536286feda8c8f402",
+              "file": "e2e/user-flows.spec.ts",
+              "line": 58,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "Error: worker-3 process did not exit within 300000ms after stop, force-killed it"
+    },
+    {
+      "message": "Error: worker-3 process did not exit within 300000ms after stop, force-killed it"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-06-12T02:54:36.499Z",
+    "duration": 451678.757,
+    "expected": 34,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

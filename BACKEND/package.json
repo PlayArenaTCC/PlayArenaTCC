@@ -10,6 +10,7 @@
     "db:sync": "node src/sync-db.js",
     "db:sync:alter": "node src/sync-db.js --alter",
     "db:reset": "node src/sync-db.js --force",
+    "db:backfill-coordinates": "node src/backfill-court-coordinates.js",
     "seed:demo": "node src/seed-demo.js"
   },
   "keywords": [],
@@ -23,11 +24,14 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
+    "nodemailer": "^8.0.10",
     "pg": "^8.21.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "marked": "^18.0.5",
+    "nodemon": "^3.1.14",
+    "puppeteer": "^25.1.0"
   }
 }

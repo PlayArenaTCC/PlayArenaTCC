@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken');
 const { Administrador, Proprietario, Usuario } = require('../models');
+const {
+  clearExpiredTemporaryAccountBlock,
+  formatTemporaryBlockMessage,
+  isAccountTemporarilyBlocked,
+} = require('../services/userAccessService');
 
 const modelByRole = {
   usuario: Usuario,
@@ -47,44 +52,82 @@ function isAccountActive(account, role) {
   return account.ativo !== false;
 }
 
-async function authenticate(request, response, next) {
-  try {
-    const header = request.headers.authorization || '';
-    const [, token] = header.split(' ');
+function blockedResponse(response, account, role) {
+  return response.status(403).json({
+    code: 'ACCOUNT_TEMPORARILY_BLOCKED',
+    accountId: account.id,
+    perfil: role,
+    message: formatTemporaryBlockMessage(account),
+  });
+}
 
-    if (!token) {
-      return response.status(401).json({ message: 'Token nao informado.' });
+function inactiveResponse(response, account, role) {
+  return response.status(403).json({
+    code: 'ACCOUNT_BANNED',
+    accountId: account.id,
+    perfil: role,
+    message: 'Sua conta foi banida. Entre em contato com o suporte para mais informações.',
+  });
+}
+
+function authenticateWithOptions({ allowInactive = false } = {}) {
+  return async (request, response, next) => {
+    try {
+      const header = request.headers.authorization || '';
+      const [, token] = header.split(' ');
+
+      if (!token) {
+        return response.status(401).json({ message: 'Token não informado.' });
+      }
+
+      const payload = jwt.verify(token, getJwtSecret());
+      const Model = modelByRole[payload.perfil];
+
+      if (!Model) {
+        return response.status(401).json({ message: 'Perfil inválido.' });
+      }
+
+      const account = await Model.findByPk(payload.sub);
+
+      if (!account) {
+        return response.status(401).json({ message: 'Conta inativa ou inexistente.' });
+      }
+
+      if (!allowInactive) {
+        if (payload.perfil !== 'admin') {
+          await clearExpiredTemporaryAccountBlock(account);
+
+          if (isAccountTemporarilyBlocked(account)) {
+            return blockedResponse(response, account, payload.perfil);
+          }
+        }
+
+        if (!isAccountActive(account, payload.perfil)) {
+          return inactiveResponse(response, account, payload.perfil);
+        }
+      }
+
+      request.auth = {
+        id: account.id,
+        perfil: payload.perfil,
+        account,
+      };
+
+      return next();
+    } catch (error) {
+      return response.status(401).json({ message: 'Sessao invalida ou expirada.' });
     }
+  };
+}
 
-    const payload = jwt.verify(token, getJwtSecret());
-    const Model = modelByRole[payload.perfil];
-
-    if (!Model) {
-      return response.status(401).json({ message: 'Perfil invalido.' });
-    }
-
-    const account = await Model.findByPk(payload.sub);
-
-    if (!isAccountActive(account, payload.perfil)) {
-      return response.status(401).json({ message: 'Conta inativa ou inexistente.' });
-    }
-
-    request.auth = {
-      id: account.id,
-      perfil: payload.perfil,
-      account,
-    };
-
-    return next();
-  } catch (error) {
-    return response.status(401).json({ message: 'Sessao invalida ou expirada.' });
-  }
+function authenticate(request, response, next) {
+  return authenticateWithOptions()(request, response, next);
 }
 
 function requireRoles(...roles) {
   return (request, response, next) => {
     if (!request.auth || !roles.includes(request.auth.perfil)) {
-      return response.status(403).json({ message: 'Acesso nao permitido para este perfil.' });
+      return response.status(403).json({ message: 'Acesso não permitido para este perfil.' });
     }
 
     return next();
@@ -93,6 +136,7 @@ function requireRoles(...roles) {
 
 module.exports = {
   authenticate,
+  authenticateWithOptions,
   requireRoles,
   sanitizeAccount,
   signToken,

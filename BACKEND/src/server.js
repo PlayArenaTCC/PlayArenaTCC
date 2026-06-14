@@ -2,15 +2,17 @@ require('dotenv').config();
 
 const { createApp } = require('./app/createApp');
 const { sequelize } = require('./models');
+const advertenciaProprietarioService = require('./services/advertenciaProprietarioService');
 
 const port = process.env.PORT || 3333;
 
 async function startServer() {
   if (process.env.DATABASE_URL) {
     await sequelize.authenticate();
+    await advertenciaProprietarioService.expirarAdvertenciasAntigas();
     console.log('Banco Neon/PostgreSQL conectado.');
   } else {
-    console.warn('DATABASE_URL nao configurada. API iniciando sem testar o banco.');
+    console.warn('DATABASE_URL não configurada. API iniciando sem testar o banco.');
   }
 
   const app = createApp();

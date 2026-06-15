@@ -43,7 +43,11 @@ function createCorsOptions() {
         return callback(null, true);
       }
 
-      return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
+      console.error('Origem bloqueada pelo CORS:', origin);
+
+      return callback(
+        new Error(`Origem não permitida pelo CORS: ${origin}`),
+      );
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -58,7 +62,9 @@ function createApp() {
   const corsOptions = createCorsOptions();
 
   app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions));
+
+  // Compatível com Express 5
+  app.options(/.*/, cors(corsOptions));
 
   app.use(express.json());
 
@@ -83,6 +89,7 @@ function createApp() {
   });
 
   app.use('/api', broadcastSuccessfulMutations);
+
   app.use('/api/events', eventRoutes);
   app.use('/api/media', mediaRoutes);
   app.use('/api/auth', authRoutes);
@@ -99,10 +106,14 @@ function createApp() {
   });
 
   app.use((error, _request, response, _next) => {
+    console.error(error);
+
     const status = error.status || 500;
 
     response.status(status).json({
-      message: status >= 500 ? 'Erro interno no servidor.' : error.message,
+      message: status >= 500
+        ? 'Erro interno no servidor.'
+        : error.message,
     });
   });
 

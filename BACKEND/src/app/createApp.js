@@ -14,6 +14,29 @@ const realtimeService = require('../services/realtimeService');
 
 const READ_ONLY_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
+function normalizeOrigin(origin) {
+  return String(origin || '').trim().replace(/\/+$/, '');
+}
+
+function parseAllowedOrigins(value) {
+  return String(value || '')
+    .split(/[\n,;]+/)
+    .map(normalizeOrigin)
+    .filter(Boolean);
+}
+
+function getAllowedOrigins() {
+  return new Set([
+    ...parseAllowedOrigins(process.env.FRONTEND_URL),
+    ...parseAllowedOrigins(process.env.CORS_ORIGIN),
+  ]);
+}
+
+function isLocalOrigin(origin) {
+  return origin.startsWith('http://localhost:')
+    || origin.startsWith('http://127.0.0.1:');
+}
+
 function broadcastSuccessfulMutations(request, response, next) {
   if (!READ_ONLY_METHODS.has(request.method)) {
     response.once('finish', () => {
@@ -27,29 +50,23 @@ function broadcastSuccessfulMutations(request, response, next) {
 }
 
 function createCorsOptions() {
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174',
-    'https://play-arena-tcc.vercel.app',
-    process.env.FRONTEND_URL,
-    process.env.CORS_ORIGIN,
-  ].filter(Boolean);
+  const allowedOrigins = getAllowedOrigins();
 
   return {
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      const requestOrigin = normalizeOrigin(origin);
+
+      if (
+        !requestOrigin
+        || isLocalOrigin(requestOrigin)
+        || allowedOrigins.has('*')
+        || allowedOrigins.has(requestOrigin)
+      ) {
         return callback(null, true);
       }
 
-      console.error('Origem bloqueada pelo CORS:', origin);
-
-      return callback(
-        new Error(`Origem não permitida pelo CORS: ${origin}`),
-      );
+      return callback(null, false);
     },
-    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 204,
@@ -59,20 +76,9 @@ function createCorsOptions() {
 function createApp() {
   const app = express();
 
-  const corsOptions = createCorsOptions();
-
-  app.use(cors(corsOptions));
-
-  // Compatível com Express 5
-  app.options(/.*/, cors(corsOptions));
-
+  app.use(cors(createCorsOptions()));
   app.use(express.json());
-
-  app.use(
-    '/uploads',
-    cors(corsOptions),
-    express.static(path.join(__dirname, '..', '..', 'uploads')),
-  );
+  app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')));
 
   app.get('/', (_request, response) => {
     response.json({
@@ -89,7 +95,6 @@ function createApp() {
   });
 
   app.use('/api', broadcastSuccessfulMutations);
-
   app.use('/api/events', eventRoutes);
   app.use('/api/media', mediaRoutes);
   app.use('/api/auth', authRoutes);
@@ -106,14 +111,10 @@ function createApp() {
   });
 
   app.use((error, _request, response, _next) => {
-    console.error(error);
-
     const status = error.status || 500;
 
     response.status(status).json({
-      message: status >= 500
-        ? 'Erro interno no servidor.'
-        : error.message,
+      message: status >= 500 ? 'Erro interno no servidor.' : error.message,
     });
   });
 

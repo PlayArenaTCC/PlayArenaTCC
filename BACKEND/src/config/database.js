@@ -3,12 +3,12 @@ require('dotenv').config();
 
 function createSequelize() {
   if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL nao configurada. Crie um arquivo .env com a URL do Neon.');
+    throw new Error('DATABASE_URL não configurada. Crie um arquivo .env com a URL do Neon.');
   }
 
   return new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    logging: process.env.DB_LOGGING === 'true' ? console.log : false,
+    logging: false,
     dialectOptions: {
       ssl: {
         require: true,

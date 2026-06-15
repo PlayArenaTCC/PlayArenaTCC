@@ -5,13 +5,11 @@ async function checkDatabase() {
 
   try {
     await sequelize.authenticate();
-    console.log('Conexao com Neon/PostgreSQL realizada com sucesso.');
   } finally {
     await sequelize.close();
   }
 }
 
-checkDatabase().catch((error) => {
-  console.error('Falha ao conectar no banco:', error.message);
+checkDatabase().catch(() => {
   process.exit(1);
 });

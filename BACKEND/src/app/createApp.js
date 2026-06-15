@@ -1,10 +1,29 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const adminRoutes = require('../routes/admin');
 const authRoutes = require('../routes/auth');
+const eventRoutes = require('../routes/events');
+const localizacaoRoutes = require('../routes/localizacao');
+const notificacaoRoutes = require('../routes/notificacoes');
 const quadraRoutes = require('../routes/quadras');
 const reservaRoutes = require('../routes/reservas');
+const realtimeService = require('../services/realtimeService');
+
+const READ_ONLY_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+function broadcastSuccessfulMutations(request, response, next) {
+  if (!READ_ONLY_METHODS.has(request.method)) {
+    response.once('finish', () => {
+      if (response.statusCode >= 200 && response.statusCode < 400) {
+        realtimeService.broadcastDataChange();
+      }
+    });
+  }
+
+  next();
+}
 
 function createCorsOptions() {
   return {
@@ -20,7 +39,7 @@ function createCorsOptions() {
         return callback(null, true);
       }
 
-      return callback(new Error('Origem nao permitida pelo CORS.'));
+      return callback(new Error('Origem não permitida pelo CORS.'));
     },
   };
 }
@@ -30,6 +49,7 @@ function createApp() {
 
   app.use(cors(createCorsOptions()));
   app.use(express.json());
+  app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')));
 
   app.get('/', (_request, response) => {
     response.json({
@@ -45,23 +65,23 @@ function createApp() {
     });
   });
 
+  app.use('/api', broadcastSuccessfulMutations);
+  app.use('/api/events', eventRoutes);
   app.use('/api/auth', authRoutes);
+  app.use('/api/localizacao', localizacaoRoutes);
+  app.use('/api/notificacoes', notificacaoRoutes);
   app.use('/api/quadras', quadraRoutes);
   app.use('/api/reservas', reservaRoutes);
   app.use('/api/admin', adminRoutes);
 
   app.use((request, response) => {
     response.status(404).json({
-      message: `Rota ${request.method} ${request.originalUrl} nao encontrada.`,
+      message: `Rota ${request.method} ${request.originalUrl} não encontrada.`,
     });
   });
 
   app.use((error, _request, response, _next) => {
     const status = error.status || 500;
-
-    if (status >= 500) {
-      console.error(error);
-    }
 
     response.status(status).json({
       message: status >= 500 ? 'Erro interno no servidor.' : error.message,

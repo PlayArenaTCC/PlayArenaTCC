@@ -1,0 +1,23 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules
+dist
+build
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime uploads
+backend/uploads
+uploads
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store

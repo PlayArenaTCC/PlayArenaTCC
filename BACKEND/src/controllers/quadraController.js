@@ -1,4 +1,5 @@
 const quadraService = require('../services/quadraService');
+const documentacaoService = require('../services/documentacaoService');
 
 async function listCourts(request, response) {
   const quadras = await quadraService.listCourts(request.query);
@@ -26,8 +27,8 @@ async function updateCourt(request, response) {
 }
 
 async function deleteCourt(request, response) {
-  await quadraService.deactivateCourt(request.auth, request.params.id);
-  response.json({ message: 'Quadra desativada com sucesso.' });
+  await quadraService.deleteCourtPermanently(request.auth, request.params.id);
+  response.json({ message: 'Quadra excluida permanentemente.' });
 }
 
 async function listSchedules(request, response) {
@@ -42,7 +43,55 @@ async function createSchedule(request, response) {
 
 async function deleteSchedule(request, response) {
   await quadraService.deleteSchedule(request.auth, request.params.quadraId, request.params.horarioId);
-  response.json({ message: 'Horario removido da agenda.' });
+  response.json({ message: 'Horário removido da agenda.' });
+}
+
+async function updateScheduleAvailability(request, response) {
+  const horario = await quadraService.updateScheduleAvailability(
+    request.auth,
+    request.params.quadraId,
+    request.params.horarioId,
+    request.body?.disponivel,
+  );
+
+  response.json({ horario });
+}
+
+function buildCourtPhotoUrl(request, filename) {
+  const forwardedProto = request.headers['x-forwarded-proto'];
+  const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
+    .split(',')[0]
+    .trim();
+
+  return `${protocol}://${request.get('host')}/uploads/court-photos/${filename}`;
+}
+
+async function uploadPhotos(request, response) {
+  const fotos = (request.files || []).map((file) => buildCourtPhotoUrl(request, file.filename));
+  response.status(201).json({ fotos });
+}
+
+function buildDocumentUrl(request, filename) {
+  const forwardedProto = request.headers['x-forwarded-proto'];
+  const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
+    .split(',')[0]
+    .trim();
+
+  return `${protocol}://${request.get('host')}/uploads/documentos/${filename}`;
+}
+
+async function uploadDocuments(request, response) {
+  const documentos = (request.files || []).reduce((acc, file) => {
+    acc[file.fieldname] = buildDocumentUrl(request, file.filename);
+    return acc;
+  }, {});
+
+  response.status(201).json({ documentos });
+}
+
+async function listOwnerDocumentations(request, response) {
+  const documentacoes = await documentacaoService.listOwnerDocumentations(request.auth.id);
+  response.json({ documentacoes });
 }
 
 module.exports = {
@@ -51,8 +100,12 @@ module.exports = {
   deleteCourt,
   deleteSchedule,
   getCourt,
+  listOwnerDocumentations,
   listCourts,
   listOwnerCourts,
   listSchedules,
+  uploadDocuments,
+  uploadPhotos,
   updateCourt,
+  updateScheduleAvailability,
 };

@@ -56,8 +56,78 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 0,
     },
+    data_inicio: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    data_fim: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    reserva_em_cima_da_hora: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    percentual_reembolso: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    valor_reembolso: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+    motivo_reembolso: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     observacoes: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    motivo_cancelamento: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    codigo_reserva: {
+      type: DataTypes.STRING(12),
+      allowNull: true,
+    },
+    status_validacao: {
+      type: DataTypes.ENUM('pendente', 'validada'),
+      allowNull: false,
+      defaultValue: 'pendente',
+    },
+    validado_em: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    validado_por_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'proprietarios',
+        key: 'id',
+      },
+    },
+    cancelado_em: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    cancelado_por_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
+    cancelado_por_perfil: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+    },
+    cancelado_por_nome: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    cancelada_por: {
+      type: DataTypes.ENUM('USUARIO', 'PROPRIETARIO', 'ADMIN'),
       allowNull: true,
     },
   }, {
@@ -73,8 +143,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       {
         unique: true,
+        fields: ['codigo_reserva'],
+        name: 'reservas_codigo_reserva_unico',
+      },
+      {
+        unique: true,
         fields: ['quadra_id', 'data_reserva', 'hora_inicio', 'hora_fim'],
-        name: 'reservas_unicas_por_horario',
+        name: 'reservas_unicas_por_horario_ativas',
+        where: {
+          status: ['pendente', 'confirmada'],
+        },
       },
     ],
   });
@@ -91,6 +169,18 @@ module.exports = (sequelize, DataTypes) => {
     Reserva.belongsTo(models.HorarioDisponivel, {
       foreignKey: 'horario_disponivel_id',
       as: 'horario_disponivel',
+    });
+    Reserva.belongsTo(models.Proprietario, {
+      foreignKey: 'validado_por_id',
+      as: 'validado_por',
+    });
+    Reserva.hasMany(models.Notificacao, {
+      foreignKey: 'reservationId',
+      as: 'notificacoes',
+    });
+    Reserva.hasMany(models.AdvertenciaProprietario, {
+      foreignKey: 'reserva_id',
+      as: 'advertencias_proprietario',
     });
   };
 

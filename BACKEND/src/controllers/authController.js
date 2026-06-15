@@ -1,7 +1,6 @@
-const fs = require('fs/promises');
-
 const { sanitizeAccount } = require('../middleware/auth');
 const authService = require('../services/authService');
+const mediaService = require('../services/mediaService');
 
 async function registerUser(request, response) {
   const payload = await authService.registerUser(request.body);
@@ -50,31 +49,33 @@ function me(request, response) {
 }
 
 async function updateProfile(request, response) {
+  let media = null;
+
   try {
+    if (request.file) {
+      media = await mediaService.createMediaAsset({
+        file: request.file,
+        ownerPerfil: request.auth.perfil,
+        ownerId: request.auth.id,
+        tipo: 'foto_perfil',
+      });
+    }
+
     const payload = await authService.updateProfile({
       account: request.auth.account,
       perfil: request.auth.perfil,
       telefone: request.body.telefone,
-      fotoPerfilUrl: request.file ? buildProfilePhotoUrl(request, request.file.filename) : undefined,
+      fotoPerfilUrl: media ? mediaService.buildMediaUrl(request, media.id) : undefined,
     });
 
     response.json(payload);
   } catch (error) {
-    if (request.file) {
-      await fs.unlink(request.file.path).catch(() => {});
+    if (media) {
+      await media.destroy().catch(() => {});
     }
 
     throw error;
   }
-}
-
-function buildProfilePhotoUrl(request, filename) {
-  const forwardedProto = request.headers['x-forwarded-proto'];
-  const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
-    .split(',')[0]
-    .trim();
-
-  return `${protocol}://${request.get('host')}/uploads/profile-photos/${filename}`;
 }
 
 async function deleteProfileAccount(request, response) {

@@ -6,6 +6,7 @@ const adminRoutes = require('../routes/admin');
 const authRoutes = require('../routes/auth');
 const eventRoutes = require('../routes/events');
 const localizacaoRoutes = require('../routes/localizacao');
+const mediaRoutes = require('../routes/media');
 const notificacaoRoutes = require('../routes/notificacoes');
 const quadraRoutes = require('../routes/quadras');
 const reservaRoutes = require('../routes/reservas');
@@ -67,6 +68,7 @@ function createApp() {
 
   app.use('/api', broadcastSuccessfulMutations);
   app.use('/api/events', eventRoutes);
+  app.use('/api/media', mediaRoutes);
   app.use('/api/auth', authRoutes);
   app.use('/api/localizacao', localizacaoRoutes);
   app.use('/api/notificacoes', notificacaoRoutes);

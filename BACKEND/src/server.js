@@ -5,6 +5,7 @@ const { sequelize } = require('./models');
 const advertenciaProprietarioService = require('./services/advertenciaProprietarioService');
 const {
   ensureAdminProfilePhotoSchemaCompatibility,
+  ensureMediaAssetSchemaCompatibility,
 } = require('./services/schemaCompatibilityService');
 
 const port = process.env.PORT || 3333;
@@ -12,6 +13,7 @@ const port = process.env.PORT || 3333;
 async function startServer() {
   if (process.env.DATABASE_URL) {
     await sequelize.authenticate();
+    await ensureMediaAssetSchemaCompatibility();
     await ensureAdminProfilePhotoSchemaCompatibility();
     await advertenciaProprietarioService.expirarAdvertenciasAntigas();
   }

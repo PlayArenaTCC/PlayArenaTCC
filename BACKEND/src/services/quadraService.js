@@ -22,6 +22,7 @@ const {
 } = require('./localizacaoService');
 const notificacaoService = require('./notificacaoService');
 const adminLogService = require('./adminLogService');
+const mediaService = require('./mediaService');
 const { HttpError } = require('../utils/http');
 
 const ACTIVE_RESERVATION_STATUSES = ['pendente', 'confirmada'];
@@ -186,9 +187,12 @@ function getLocalUploadPath(value) {
   return absolutePath.toLowerCase().startsWith(uploadsRoot) ? absolutePath : null;
 }
 
-async function deleteLocalUploads(values) {
+async function deleteStoredUploads(values) {
   const paths = [...new Set((values || []).map(getLocalUploadPath).filter(Boolean))];
-  await Promise.all(paths.map((filePath) => fs.unlink(filePath).catch(() => {})));
+  await Promise.all([
+    ...paths.map((filePath) => fs.unlink(filePath).catch(() => {})),
+    mediaService.deleteMediaAssetsByUrls(values || []),
+  ]);
 }
 
 function normalizeWeekday(value) {
@@ -1034,7 +1038,7 @@ async function updateCourt(auth, id, body) {
 
   const updatedCourt = await getCourtForManagement(quadra.id);
   const nextPhotos = buildPhotoList(updatedCourt.imagem_url, updatedCourt.fotos);
-  await deleteLocalUploads(previousPhotos.filter((photo) => !nextPhotos.includes(photo)));
+  await deleteStoredUploads(previousPhotos.filter((photo) => !nextPhotos.includes(photo)));
   return updatedCourt;
 }
 
@@ -1168,7 +1172,7 @@ async function deleteCourtPermanently(auth, id) {
     }
   });
 
-  await deleteLocalUploads(photos);
+  await deleteStoredUploads(photos);
 }
 
 async function listSchedules(courtId, data) {

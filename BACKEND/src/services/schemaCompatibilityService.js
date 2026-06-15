@@ -1,4 +1,4 @@
-const { sequelize } = require('../models');
+const { MediaAsset, sequelize } = require('../models');
 
 async function ensureNotificationSchemaCompatibility() {
   const [columns] = await sequelize.query(`
@@ -39,7 +39,12 @@ async function ensureAdminProfilePhotoSchemaCompatibility() {
   }
 }
 
+async function ensureMediaAssetSchemaCompatibility() {
+  await MediaAsset.sync();
+}
+
 module.exports = {
   ensureAdminProfilePhotoSchemaCompatibility,
+  ensureMediaAssetSchemaCompatibility,
   ensureNotificationSchemaCompatibility,
 };

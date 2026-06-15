@@ -18,6 +18,7 @@ const CredencialBanida = require('./CredencialBanida')(sequelize, DataTypes);
 const AdvertenciaProprietario = require('./AdvertenciaProprietario')(sequelize, DataTypes);
 const AvisoAdministrativo = require('./AvisoAdministrativo')(sequelize, DataTypes);
 const AvisoAdvertenciaItem = require('./AvisoAdvertenciaItem')(sequelize, DataTypes);
+const MediaAsset = require('./MediaAsset')(sequelize, DataTypes);
 
 const models = {
   Usuario,
@@ -35,6 +36,7 @@ const models = {
   AdvertenciaProprietario,
   AvisoAdministrativo,
   AvisoAdvertenciaItem,
+  MediaAsset,
 };
 
 Object.values(models).forEach((model) => {

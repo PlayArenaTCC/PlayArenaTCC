@@ -26,6 +26,7 @@ const {
   formatTemporaryBlockMessage,
   isAccountTemporarilyBlocked,
 } = require('./userAccessService');
+const mediaService = require('./mediaService');
 const {
   getCpfCnpjError,
   getCpfError,
@@ -1207,6 +1208,7 @@ async function updateProfile({ account, perfil, telefone, fotoPerfilUrl }) {
   }
 
   const updates = {};
+  const previousProfilePhotoUrl = account.foto_perfil_url;
 
   if (telefone !== undefined) {
     updates.telefone = normalizePhone(telefone);
@@ -1218,6 +1220,10 @@ async function updateProfile({ account, perfil, telefone, fotoPerfilUrl }) {
 
   if (Object.keys(updates).length) {
     await account.update(updates);
+  }
+
+  if (fotoPerfilUrl && previousProfilePhotoUrl && previousProfilePhotoUrl !== fotoPerfilUrl) {
+    await deleteStoredUpload(previousProfilePhotoUrl).catch(() => {});
   }
 
   return {
@@ -1272,6 +1278,13 @@ async function deleteLocalUpload(value) {
   }
 }
 
+async function deleteStoredUpload(value) {
+  await Promise.all([
+    deleteLocalUpload(value),
+    mediaService.deleteMediaAssetByUrl(value),
+  ]);
+}
+
 async function deleteUploadsByPrefix(directory, prefix) {
   const entries = await fs.readdir(directory, { withFileTypes: true }).catch(() => []);
   await Promise.all(entries
@@ -1303,7 +1316,7 @@ async function cleanupAccountUploads({
   ];
 
   await Promise.all([
-    ...uploadUrls.map(deleteLocalUpload),
+    ...uploadUrls.map(deleteStoredUpload),
     deleteUploadsByPrefix(PROFILE_PHOTO_DIR, `${perfil}-${account.id}-`),
     perfil === 'proprietario' ? deleteUploadsByPrefix(COURT_PHOTO_DIR, `${account.id}-`) : Promise.resolve(),
     perfil === 'proprietario' ? deleteUploadsByPrefix(DOCUMENT_DIR, `${account.id}-`) : Promise.resolve(),

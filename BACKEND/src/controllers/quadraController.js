@@ -1,5 +1,6 @@
 const quadraService = require('../services/quadraService');
 const documentacaoService = require('../services/documentacaoService');
+const mediaService = require('../services/mediaService');
 
 async function listCourts(request, response) {
   const quadras = await quadraService.listCourts(request.query);
@@ -57,18 +58,27 @@ async function updateScheduleAvailability(request, response) {
   response.json({ horario });
 }
 
-function buildCourtPhotoUrl(request, filename) {
-  const forwardedProto = request.headers['x-forwarded-proto'];
-  const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
-    .split(',')[0]
-    .trim();
-
-  return `${protocol}://${request.get('host')}/uploads/court-photos/${filename}`;
-}
-
 async function uploadPhotos(request, response) {
-  const fotos = (request.files || []).map((file) => buildCourtPhotoUrl(request, file.filename));
-  response.status(201).json({ fotos });
+  const assets = [];
+
+  try {
+    for (const file of request.files || []) {
+      const media = await mediaService.createMediaAsset({
+        file,
+        ownerPerfil: request.auth.perfil,
+        ownerId: request.auth.id,
+        tipo: 'foto_quadra',
+      });
+      assets.push(media);
+    }
+
+    response.status(201).json({
+      fotos: assets.map((media) => mediaService.buildMediaUrl(request, media.id)),
+    });
+  } catch (error) {
+    await Promise.all(assets.map((media) => media.destroy().catch(() => {})));
+    throw error;
+  }
 }
 
 function buildDocumentUrl(request, filename) {

@@ -27,30 +27,46 @@ function broadcastSuccessfulMutations(request, response, next) {
 }
 
 function createCorsOptions() {
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'https://play-arena-tcc.vercel.app',
+    process.env.FRONTEND_URL,
+    process.env.CORS_ORIGIN,
+  ].filter(Boolean);
+
   return {
     origin(origin, callback) {
-      const allowedOrigin = process.env.FRONTEND_URL;
-
-      if (
-        !origin
-        || origin.startsWith('http://localhost:')
-        || origin.startsWith('http://127.0.0.1:')
-        || origin === allowedOrigin
-      ) {
+      if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      return callback(new Error('Origem não permitida pelo CORS.'));
+      return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
     },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
   };
 }
 
 function createApp() {
   const app = express();
 
-  app.use(cors(createCorsOptions()));
+  const corsOptions = createCorsOptions();
+
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
+
   app.use(express.json());
-  app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')));
+
+  app.use(
+    '/uploads',
+    cors(corsOptions),
+    express.static(path.join(__dirname, '..', '..', 'uploads')),
+  );
 
   app.get('/', (_request, response) => {
     response.json({

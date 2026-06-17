@@ -1,7 +1,8 @@
 # ⚽ PlayArena
 
 <p align="center">
-  <img src="./frontend/public/logo.png" alt="Logo PlayArena" width="180">
+<img width="500" height="500" alt="d2fd47a50_image-removebg-preview" src="https://github.com/user-attachments/assets/0346630e-7197-47a2-a759-75c8fb26cabe" />
+
 </p>
 
 <p align="center">

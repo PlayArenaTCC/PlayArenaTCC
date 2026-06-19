@@ -14,6 +14,29 @@ const realtimeService = require('../services/realtimeService');
 
 const READ_ONLY_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
+function normalizeOrigin(origin) {
+  return String(origin || '').trim().replace(/\/+$/, '');
+}
+
+function parseAllowedOrigins(value) {
+  return String(value || '')
+    .split(/[\n,;]+/)
+    .map(normalizeOrigin)
+    .filter(Boolean);
+}
+
+function getAllowedOrigins() {
+  return new Set([
+    ...parseAllowedOrigins(process.env.FRONTEND_URL),
+    ...parseAllowedOrigins(process.env.CORS_ORIGIN),
+  ]);
+}
+
+function isLocalOrigin(origin) {
+  return origin.startsWith('http://localhost:')
+    || origin.startsWith('http://127.0.0.1:');
+}
+
 function broadcastSuccessfulMutations(request, response, next) {
   if (!READ_ONLY_METHODS.has(request.method)) {
     response.once('finish', () => {
@@ -27,21 +50,26 @@ function broadcastSuccessfulMutations(request, response, next) {
 }
 
 function createCorsOptions() {
+  const allowedOrigins = getAllowedOrigins();
+
   return {
     origin(origin, callback) {
-      const allowedOrigin = process.env.FRONTEND_URL;
+      const requestOrigin = normalizeOrigin(origin);
 
       if (
-        !origin
-        || origin.startsWith('http://localhost:')
-        || origin.startsWith('http://127.0.0.1:')
-        || origin === allowedOrigin
+        !requestOrigin
+        || isLocalOrigin(requestOrigin)
+        || allowedOrigins.has('*')
+        || allowedOrigins.has(requestOrigin)
       ) {
         return callback(null, true);
       }
 
-      return callback(new Error('Origem não permitida pelo CORS.'));
+      return callback(null, false);
     },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
   };
 }
 

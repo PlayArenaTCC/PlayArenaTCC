@@ -33,15 +33,17 @@ function initSMTPTransporter() {
 function initGmailTransporter() {
   if (gmailTransporter) return gmailTransporter;
 
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+  const gmailUser = String(process.env.GMAIL_USER || '').trim();
+  const gmailAppPassword = String(process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
 
   if (!gmailUser || !gmailAppPassword) {
     throw new Error('GMAIL_USER e GMAIL_APP_PASSWORD precisam estar configurados no .env');
   }
 
   gmailTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: gmailUser,
       pass: gmailAppPassword,

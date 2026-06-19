@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { LogOut, Menu, Moon, Sun, User, TriangleAlert } from 'lucide-react'
 import { Logo } from '../components/Logo'
@@ -25,12 +25,34 @@ export function AppHeader({
   const [open, setOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [dropdownTimeout, setDropdownTimeout] = useState(null)
-  const [, setLogoClickCount] = useState(0)
+  const logoButtonRef = useRef(null)
+  const logoTapCountRef = useRef(0)
   const [showDancingAlien, setShowDancingAlien] = useState(false)
   const accountName = session.usuario?.nome || session.usuario?.nome_responsavel || session.usuario?.nome_empresa || 'Conta'
   const avatarUrl = session.usuario?.foto_perfil_url
   const isAdmin = session.usuario?.perfil === 'admin'
   const isUser = session.usuario?.perfil === 'usuario'
+  const requiredLogoTaps = 20
+
+  useEffect(() => {
+    function resetLogoTapCount(event) {
+      if (logoButtonRef.current?.contains(event.target)) {
+        return
+      }
+
+      logoTapCountRef.current = 0
+    }
+
+    document.addEventListener('pointerdown', resetLogoTapCount, true)
+    document.addEventListener('keydown', resetLogoTapCount, true)
+    document.addEventListener('wheel', resetLogoTapCount, true)
+
+    return () => {
+      document.removeEventListener('pointerdown', resetLogoTapCount, true)
+      document.removeEventListener('keydown', resetLogoTapCount, true)
+      document.removeEventListener('wheel', resetLogoTapCount, true)
+    }
+  }, [])
 
   function navigate(view, { scrollTop = false } = {}) {
     onNavigate(view)
@@ -66,19 +88,16 @@ export function AppHeader({
     goHome()
 
     if (!isUser) {
+      logoTapCountRef.current = 0
       return
     }
 
-    setLogoClickCount((current) => {
-      const nextCount = current + 1
+    logoTapCountRef.current += 1
 
-      if (nextCount >= 5) {
-        setShowDancingAlien(true)
-        return 0
-      }
-
-      return nextCount
-    })
+    if (logoTapCountRef.current >= requiredLogoTaps) {
+      setShowDancingAlien(true)
+      logoTapCountRef.current = 0
+    }
   }
 
   function renderAdminUsersMenu(item) {
@@ -132,7 +151,7 @@ export function AppHeader({
   return (
     <>
       <header className={isUser ? 'app-header user-app-header' : 'app-header'}>
-      <button className="logo-button" type="button" onClick={handleLogoClick} aria-label="Voltar ao início">
+      <button ref={logoButtonRef} className="logo-button" type="button" onClick={handleLogoClick} aria-label="Voltar ao início">
         <Logo />
       </button>
       <button className="icon-button menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-label="Abrir menu">

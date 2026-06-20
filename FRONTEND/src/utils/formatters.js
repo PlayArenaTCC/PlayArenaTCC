@@ -25,8 +25,21 @@ export function formatPortugueseText(value) {
   return textCorrections.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value)
 }
 
-export function todayISO() {
-  return new Date().toISOString().slice(0, 10)
+const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/
+
+export function todayISO(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+export function isPastISODate(value, referenceDate = todayISO()) {
+  const date = String(value || '').trim()
+  const today = String(referenceDate || '').trim()
+
+  return isoDatePattern.test(date) && isoDatePattern.test(today) && date < today
 }
 
 export function formatCurrency(value) {

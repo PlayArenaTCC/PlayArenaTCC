@@ -3,7 +3,7 @@ import { AlertTriangle, ClipboardList, ShieldCheck, X } from 'lucide-react'
 import { defaultHorarios } from '../../data/demoData'
 import { fetchCourtSchedules, previewReservationTiming } from '../../services/playarenaApi'
 import { DATA_CHANGED_EVENT } from '../../services/httpClient'
-import { formatCurrency, formatDate, shortTime, todayISO } from '../../utils/formatters'
+import { formatCurrency, formatDate, isPastISODate, shortTime, todayISO } from '../../utils/formatters'
 
 const SCHEDULE_REFRESH_INTERVAL_MS = 15000
 
@@ -48,7 +48,8 @@ function getSchedulePrice(item, basePrice) {
 export function ReservationModal({ quadra, token, onClose, onConfirm }) {
   const isDemoCourt = quadra && String(quadra.id).startsWith('demo')
   const demoSchedules = quadra?.horarios_disponiveis?.length ? quadra.horarios_disponiveis : defaultHorarios
-  const [data, setData] = useState(todayISO())
+  const minReservationDate = todayISO()
+  const [data, setData] = useState(() => todayISO())
   const [horarios, setHorarios] = useState(isDemoCourt ? demoSchedules : [])
   const [horarioId, setHorarioId] = useState(isDemoCourt ? demoSchedules[0]?.id || '' : '')
   const [formaPagamento, setFormaPagamento] = useState('pix')
@@ -57,6 +58,8 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
   const [loading, setLoading] = useState(false)
   const [reservationPreview, setReservationPreview] = useState(null)
   const [previewError, setPreviewError] = useState('')
+  const selectedDateIsPast = isPastISODate(data, minReservationDate)
+  const reservationDate = !data || selectedDateIsPast ? minReservationDate : data
 
   useEffect(() => {
     let active = true
@@ -65,6 +68,8 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
       if (!quadra) {
         return
       }
+
+      const currentReservationDate = !data || isPastISODate(data) ? todayISO() : data
 
       if (String(quadra.id).startsWith('demo')) {
         if (active) {
@@ -80,7 +85,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
       }
 
       try {
-        const response = await fetchCourtSchedules(quadra.id, data, token)
+        const response = await fetchCourtSchedules(quadra.id, currentReservationDate, token)
         if (active) {
           const nextSchedules = response.horarios || []
           setHorarios(nextSchedules)
@@ -142,6 +147,8 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
   async function submit(event) {
     event.preventDefault()
 
+    const submittedDate = !data || isPastISODate(data) ? todayISO() : data
+
     if (!hasValidSlot) {
       return
     }
@@ -155,7 +162,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
           setReservationPreview(null)
         } else {
           const preview = await previewReservationTiming(token, {
-            data_reserva: data,
+            data_reserva: submittedDate,
             hora_inicio: horario.hora_inicio,
             hora_fim: horario.hora_fim,
           })
@@ -175,7 +182,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
     try {
       if (!isDemoCourt) {
         const preview = await previewReservationTiming(token, {
-          data_reserva: data,
+          data_reserva: submittedDate,
           hora_inicio: horario.hora_inicio,
           hora_fim: horario.hora_fim,
         })
@@ -189,7 +196,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
       }
 
       await onConfirm({
-        data_reserva: data,
+        data_reserva: submittedDate,
         horario,
         forma_pagamento: formaPagamento,
         observacoes,
@@ -201,12 +208,16 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
   }
 
   function handleDateChange(event) {
-    setData(event.target.value)
+    const nextDate = event.target.value
+    const currentMinDate = todayISO()
+    const nextDateIsPast = isPastISODate(nextDate, currentMinDate)
+
+    setData(!nextDate || nextDateIsPast ? currentMinDate : nextDate)
     setHorarios([])
     setHorarioId('')
     setReviewing(false)
     setReservationPreview(null)
-    setPreviewError('')
+    setPreviewError(nextDateIsPast ? 'Escolha uma data a partir de hoje.' : '')
   }
 
   function handleScheduleChange(event) {
@@ -257,7 +268,7 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
               <span>Quadra <strong>{quadra.nome}</strong></span>
               {proprietario && <span>Proprietário <strong>{proprietario}</strong></span>}
               <span>Endereço <strong>{endereco || 'Localidade não informada'}</strong></span>
-              <span>Data <strong>{formatDate(data)}</strong></span>
+              <span>Data <strong>{formatDate(reservationDate)}</strong></span>
               <span>Horário <strong>{shortTime(horario?.hora_inicio)} - {shortTime(horario?.hora_fim)}</strong></span>
               {hasSpecialSchedulePrice && <span>Preço do horário <strong>{getSchedulePriceLabel(horario, basePrice)}</strong></span>}
               <span>Pagamento <strong>{paymentLabels[formaPagamento] || formaPagamento}</strong></span>
@@ -269,7 +280,14 @@ export function ReservationModal({ quadra, token, onClose, onConfirm }) {
           <>
             <label className="field">
               <span>Data da reserva</span>
-              <input type="date" value={data} min={todayISO()} onChange={handleDateChange} />
+              <input
+                type="date"
+                value={reservationDate}
+                min={minReservationDate}
+                required
+                onChange={handleDateChange}
+                onInput={handleDateChange}
+              />
             </label>
 
             <label className="field">

@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
- SITE PLAYARENA https://app.playarena.biz/
+ SITE PLAYARENA https://site.playarena.press/
 </p>
 
 <p align="center">

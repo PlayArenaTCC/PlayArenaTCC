@@ -28,6 +28,12 @@
   <img src="https://img.shields.io/badge/license-MIT-blue">
 </p>
 
+<p align="center">
+  Relatório de testes E2E
+https://github.com/user-attachments/files/29518308/playarena-test-report.pdf
+
+</p>
+
 ---
 
 ## 📋 Sobre o Projeto
@@ -114,8 +120,4 @@ API REST (Node.js + Express)
         ↓
 Banco de Dados (PostgreSQL / Neon DB)
 
-<p align="center">
-  Relatório de testes E2E
-https://github.com/user-attachments/files/29518308/playarena-test-report.pdf
 
-</p>

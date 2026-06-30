@@ -1,4 +1,4 @@
-[TCC Final.pdf](https://github.com/user-attachments/files/29518168/TCC.Final.pdf)
+
 # ⚽ PlayArena
 
 <p align="center">
@@ -19,6 +19,11 @@
  Documentação Normas ABNT 2026.
  https://github.com/user-attachments/files/29518192/TCC.Final.pdf
 </p>
+<p align="center">
+  Relatório de testes E2E
+https://github.com/user-attachments/files/29518308/playarena-test-report.pdf
+
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow">
@@ -26,11 +31,7 @@
   <img src="https://img.shields.io/badge/license-MIT-blue">
 </p>
 
-<p align="center">
-  Relatório de testes E2E
-https://github.com/user-attachments/files/29518308/playarena-test-report.pdf
 
-</p>
 
 ---
 

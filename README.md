@@ -1,3 +1,4 @@
+[TCC Final.pdf](https://github.com/user-attachments/files/29518168/TCC.Final.pdf)
 # ⚽ PlayArena
 
 <p align="center">
@@ -11,6 +12,14 @@
 
 <p align="center">
   Plataforma web para reserva e gerenciamento de quadras e espaços esportivos.
+ 
+</p>
+
+<p align="center">
+ Documentação Normas ABNT 2026.
+ [TCC Final.pdf](https://github.com/user-attachments/files/29518192/TCC.Final.pdf)
+
+ 
 </p>
 
 <p align="center">

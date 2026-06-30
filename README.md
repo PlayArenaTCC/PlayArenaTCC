@@ -113,3 +113,9 @@ Frontend (React + Vite)
 API REST (Node.js + Express)
         ↓
 Banco de Dados (PostgreSQL / Neon DB)
+
+<p align="center">
+  Relatório de testes E2E
+https://github.com/user-attachments/files/29518308/playarena-test-report.pdf
+
+</p>

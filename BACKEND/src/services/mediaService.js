@@ -6,6 +6,10 @@ const MEDIA_PATH_PREFIX = '/api/media/';
 const MEDIA_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function getRequestBaseUrl(request) {
+  if (process.env.APP_URL) {
+    return process.env.APP_URL;
+  }
+
   const forwardedProto = request.headers['x-forwarded-proto'];
   const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
     .split(',')[0]
@@ -15,11 +19,24 @@ function getRequestBaseUrl(request) {
 }
 
 function buildMediaUrl(request, id) {
-  return `${getRequestBaseUrl(request)}${MEDIA_PATH_PREFIX}${id}`;
+  return buildMediaUrlFromBase(getRequestBaseUrl(request), id);
 }
 
 function buildMediaUrlFromBase(baseUrl, id) {
-  return `${String(baseUrl || '').replace(/\/+$/, '')}${MEDIA_PATH_PREFIX}${id}`;
+  const rawBase = String(baseUrl || '').trim();
+  const mediaPath = `${MEDIA_PATH_PREFIX}${String(id || '').replace(/^\/+/, '')}`;
+
+  if (!rawBase) {
+    return mediaPath;
+  }
+
+  try {
+    const base = new URL(rawBase);
+    const origin = `${base.protocol}//${base.host}`;
+    return new URL(mediaPath, origin).toString();
+  } catch {
+    return `${rawBase.replace(/\/+$/, '')}${mediaPath}`;
+  }
 }
 
 async function createMediaAsset({

@@ -82,6 +82,10 @@ async function uploadPhotos(request, response) {
 }
 
 function buildDocumentUrl(request, filename) {
+  if (process.env.APP_URL) {
+    return `${process.env.APP_URL}/uploads/documentos/${filename}`;
+  }
+
   const forwardedProto = request.headers['x-forwarded-proto'];
   const protocol = String(Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || request.protocol)
     .split(',')[0]

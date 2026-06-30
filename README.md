@@ -17,7 +17,7 @@
 
 <p align="center">
  Documentação Normas ABNT 2026.
- [TCC Final.pdf](https://github.com/user-attachments/files/29518192/TCC.Final.pdf)
+ https://github.com/user-attachments/files/29518192/TCC.Final.pdf
 
  
 </p>
